@@ -293,7 +293,7 @@
 - ID (INT, PK)
 - Логин (VARCHAR(50), UNIQUE, NOT NULL)
 - Хеш пароля (VARCHAR(255), NOT NULL)
-- Роль (VARCHAR(20), NOT NULL)
+- Роль (VARCHAR(20), NOT NULL): receiver, assembler, manager, admin
 - Дата создания (TIMESTAMPTZ, DEFAULT CURRENT_TIMESTAMP)
 
 ## План работы хаба
