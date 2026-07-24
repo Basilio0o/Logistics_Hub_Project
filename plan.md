@@ -394,7 +394,7 @@ logistics_hub/
 | | | - Supply/
 | | | | - Supply.h
 | | | | - SupplyPart.h
-| | | - Area.h
+| | | - District.h
 | | | - Order/
 | | | | - Order.h
 | | | | - OrderPart.h
@@ -438,7 +438,7 @@ logistics_hub/
 | | | - Supply/
 | | | | - Supply.cpp
 | | | | - SupplyPart.cpp
-| | | - Area.cpp
+| | | - District.cpp
 | | | - Order/
 | | | | - Order.cpp
 | | | | - OrderPart.cpp
