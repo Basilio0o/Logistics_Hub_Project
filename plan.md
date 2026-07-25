@@ -156,7 +156,7 @@
 ### Зона
 - ID (INT, PK)
 - Склад (ссылка на Склад, NOT NULL)
-- Название (VARCHAR(50), NOT NULL)
+- Название (VARCHAR(50), NOT NULL): Обычная, Холодная, Крупногабаритная
 - Код (VARCHAR(10), NOT NULL)
 - Максимальный вес (NUMERIC(10,2))
 - Максимальный объём (NUMERIC(10,2))
@@ -180,13 +180,13 @@
 - Максимальный объём (NUMERIC(10,2))
 - Текущий вес (NUMERIC(10,2), DEFAULT 0)
 - Текущий объём (NUMERIC(10,2), DEFAULT 0)
-- Статус (VARCHAR(20), DEFAULT 'active')
+- Статус (VARCHAR(20), DEFAULT 'active'): active, blocked, maintenance
 
 ### Товар
 - ID (INT, PK)
 - Название (VARCHAR(255), NOT NULL)
 - Поставщик (ссылка на Поставщика)
-- Тип (VARCHAR(20), NOT NULL)
+- Тип (VARCHAR(20), NOT NULL): regular, perishable, oversized
 - Вес единицы (NUMERIC(10,2), NOT NULL)
 - Объём единицы (NUMERIC(10,2), NOT NULL)
 - Цена за единицу (NUMERIC(10,2), NOT NULL)
@@ -210,7 +210,7 @@
 - Поставщик (ссылка на Поставщика, NOT NULL)
 - Кто принял (ссылка на Пользователя)
 - Дата приёмки (TIMESTAMPTZ)
-- Статус (VARCHAR(20), DEFAULT 'pending')
+- Статус (VARCHAR(20), DEFAULT 'pending'): pending, accepted, rejected
 
 ### Элемент поставки
 - Поставка (ссылка на Поставку, PK)
@@ -225,8 +225,9 @@
 ### Заказ
 - ID (INT, PK)
 - Район (ссылка на Район, NOT NULL)
-- Приоритет (VARCHAR(10), DEFAULT 'normal')
-- Статус (VARCHAR(20), DEFAULT 'new')
+- Приоритет (VARCHAR(10), DEFAULT 'normal'): low, normal, high, urgent
+- Статус (VARCHAR(20), DEFAULT 'new'): new, processing, assembled, dispatched, delivered, canceled
+
 - Дата создания (TIMESTAMPTZ, DEFAULT CURRENT_TIMESTAMP)
 
 ### Элемент заказа
@@ -238,11 +239,11 @@
 - ID (INT, PK)
 - Заказ (ссылка на Заказ, NOT NULL)
 - Район доставки (ссылка на Район, NOT NULL)
-- Тип (VARCHAR(20), NOT NULL)
+- Тип (VARCHAR(20), NOT NULL): standard, express, oversized
 - Вес (NUMERIC(10,2), NOT NULL)
 - Объём (NUMERIC(10,2), NOT NULL)
-- Приоритет (VARCHAR(10), NOT NULL)
-- Статус (VARCHAR(20), DEFAULT 'new')
+- Приоритет (VARCHAR(10), NOT NULL): low, normal, high, urgent
+- Статус (VARCHAR(20), DEFAULT 'new'): new, assembled, grouped, loaded, dispatched, delivered
 - Кто собрал (ссылка на Пользователя)
 - Дата создания (TIMESTAMPTZ, DEFAULT CURRENT_TIMESTAMP)
 - Дата сборки (TIMESTAMPTZ, NULL)
@@ -265,7 +266,7 @@
 - Текущий вес (NUMERIC(10,2), DEFAULT 0)
 - Текущий объём (NUMERIC(10,2), DEFAULT 0)
 - Текущее количество посылок (INT, DEFAULT 0)
-- Статус (VARCHAR(20), DEFAULT 'available')
+- Статус (VARCHAR(20), DEFAULT 'available'): available, loading, on_route, off_duty
 - Кто отправил (ссылка на Пользователя, NULL)
 
 ### Районы обслуживания машины
@@ -282,9 +283,9 @@
 
 ### Журнал аудита
 - ID (INT, PK)
-- Тип сущности (VARCHAR(50), NOT NULL)
+- Тип сущности (VARCHAR(50), NOT NULL): shipment, order, parcel, item, cell
 - ID сущности (INT, NOT NULL)
-- Операция (VARCHAR(50), NOT NULL)
+- Операция (VARCHAR(50), NOT NULL): receive, assemble, dispatch, move, update, delete
 - Кто выполнил (ссылка на Пользователя)
 - Дата (TIMESTAMPTZ, DEFAULT CURRENT_TIMESTAMP)
 - Детали (JSONB, NULL)
