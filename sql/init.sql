@@ -25,3 +25,37 @@ CREATE TABLE IF NOT EXISTS warehouses (
     address TEXT NOT NULL,
     square  NUMERIC(10,2) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS zones (
+    id             SERIAL PRIMARY KEY,
+    warehouse_id   INT NOT NULL REFERENCES warehouses(id),
+    name           VARCHAR(50) NOT NULL
+                   CHECK (name IN ('Обычная', 'Холодная', 'Крупногабаритная')),
+    code           VARCHAR(10) NOT NULL,
+    max_weight     NUMERIC(10,2),
+    max_volume     NUMERIC(10,2),
+    current_weight NUMERIC(10,2) DEFAULT 0,
+    current_volume NUMERIC(10,2) DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS racks (
+    id             SERIAL PRIMARY KEY,
+    zone_id        INT NOT NULL REFERENCES zones(id),
+    code           VARCHAR(20) NOT NULL,
+    max_weight     NUMERIC(10,2),
+    max_volume     NUMERIC(10,2),
+    current_weight NUMERIC(10,2) DEFAULT 0,
+    current_volume NUMERIC(10,2) DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS shelves (
+    id             SERIAL PRIMARY KEY,
+    rack_id        INT NOT NULL REFERENCES racks(id),
+    code           VARCHAR(30) NOT NULL,
+    max_weight     NUMERIC(10,2),
+    max_volume     NUMERIC(10,2),
+    current_weight NUMERIC(10,2) DEFAULT 0,
+    current_volume NUMERIC(10,2) DEFAULT 0,
+    status         VARCHAR(20) DEFAULT 'active'
+                   CHECK (status IN ('active', 'blocked', 'maintenance'))
+);
