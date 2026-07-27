@@ -80,3 +80,20 @@ CREATE TABLE IF NOT EXISTS shelf_products (
     received_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (shelf_id, product_id)
 );
+
+CREATE TABLE IF NOT EXISTS supplies (
+    id          SERIAL PRIMARY KEY,
+    supplier_id INT NOT NULL REFERENCES suppliers(id),
+    received_by INT REFERENCES users(id),
+    received_at TIMESTAMPTZ,
+    status      VARCHAR(20) DEFAULT 'pending'
+                CHECK (status IN ('pending', 'accepted', 'rejected'))
+);
+
+CREATE TABLE IF NOT EXISTS supply_items (
+    supply_id   INT NOT NULL REFERENCES supplies(id),
+    product_id  INT NOT NULL REFERENCES products(id),
+    quantity    INT NOT NULL,
+    received_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (supply_id, product_id)
+);
