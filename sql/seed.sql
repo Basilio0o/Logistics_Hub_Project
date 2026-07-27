@@ -62,3 +62,14 @@ INSERT INTO supply_items (supply_id, product_id, quantity, received_at) VALUES
     (1, 2, 20, CURRENT_TIMESTAMP),                      -- 20 единиц молока в поставке 1
     (2, 3, 10, CURRENT_TIMESTAMP - INTERVAL '1 day')    -- 10 велосипедов в поставке 2
 ON CONFLICT (supply_id, product_id) DO NOTHING;
+
+INSERT INTO orders (district_id, priority, status) VALUES
+    (1, 'normal', 'new'),
+    (1, 'high',   'new')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO order_items (order_id, product_id, quantity) VALUES
+    (1, 1, 2),   -- 2 книги в заказе 1
+    (1, 2, 1),   -- 1 молоко в заказе 1
+    (2, 3, 1)    -- 1 велосипед в заказе 2
+ON CONFLICT (order_id, product_id) DO NOTHING;

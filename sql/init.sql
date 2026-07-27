@@ -97,3 +97,21 @@ CREATE TABLE IF NOT EXISTS supply_items (
     received_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (supply_id, product_id)
 );
+
+CREATE TABLE IF NOT EXISTS orders (
+    id          SERIAL PRIMARY KEY,
+    district_id INT NOT NULL REFERENCES districts(id),
+    priority    VARCHAR(10) DEFAULT 'normal'
+                CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
+    status      VARCHAR(20) DEFAULT 'new'
+                CHECK (status IN ('new', 'processing', 'assembled',
+                                  'dispatched', 'delivered', 'canceled')),
+    created_at  TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    order_id   INT NOT NULL REFERENCES orders(id),
+    product_id INT NOT NULL REFERENCES products(id),
+    quantity   INT NOT NULL,
+    PRIMARY KEY (order_id, product_id)
+);
