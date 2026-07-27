@@ -178,3 +178,16 @@ CREATE TABLE IF NOT EXISTS parcel_history (
     changed_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     changed_by INT REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id           SERIAL PRIMARY KEY,
+    entity_type  VARCHAR(50) NOT NULL
+                 CHECK (entity_type IN ('shipment', 'order', 'parcel', 'item', 'cell')),
+    entity_id    INT NOT NULL,
+    operation    VARCHAR(50) NOT NULL
+                 CHECK (operation IN ('receive', 'assemble', 'dispatch',
+                                      'move', 'update', 'delete')),
+    performed_by INT REFERENCES users(id),
+    created_at   TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    details      JSONB
+);

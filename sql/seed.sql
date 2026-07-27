@@ -97,3 +97,7 @@ ON CONFLICT (parcel_id, product_id) DO NOTHING;
 INSERT INTO parcel_history (parcel_id, old_status, new_status, changed_by) VALUES
     (1, NULL, 'new', 1)
 ON CONFLICT DO NOTHING;
+
+INSERT INTO audit_logs (entity_type, entity_id, operation, performed_by, details) VALUES
+    ('order', 1, 'receive', 1, '{"note": "Заказ создан менеджером"}'::jsonb)
+ON CONFLICT DO NOTHING;
