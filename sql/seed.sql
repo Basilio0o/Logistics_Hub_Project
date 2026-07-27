@@ -84,3 +84,16 @@ INSERT INTO vehicle_districts (vehicle_id, district_id) VALUES
     (1, 2),   -- машина 1 обслуживает Северный
     (2, 1)    -- машина 2 обслуживает Центральный
 ON CONFLICT (vehicle_id, district_id) DO NOTHING;
+
+INSERT INTO parcels (order_id, district_id, type, weight, volume, priority, status) VALUES
+    (1, 1, 'standard', 2.00, 0.005, 'normal', 'new')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO parcel_items (parcel_id, product_id, quantity) VALUES
+    (1, 1, 2),   -- 2 книги
+    (1, 2, 1)    -- 1 молоко
+ON CONFLICT (parcel_id, product_id) DO NOTHING;
+
+INSERT INTO parcel_history (parcel_id, old_status, new_status, changed_by) VALUES
+    (1, NULL, 'new', 1)
+ON CONFLICT DO NOTHING;

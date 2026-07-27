@@ -136,3 +136,45 @@ CREATE TABLE IF NOT EXISTS vehicle_districts (
     district_id INT NOT NULL REFERENCES districts(id),
     PRIMARY KEY (vehicle_id, district_id)
 );
+
+CREATE TABLE IF NOT EXISTS parcels (
+    id            SERIAL PRIMARY KEY,
+    order_id      INT NOT NULL REFERENCES orders(id),
+    district_id   INT NOT NULL REFERENCES districts(id),
+    type          VARCHAR(20) NOT NULL
+                  CHECK (type IN ('standard', 'express', 'oversized')),
+    weight        NUMERIC(10,2) NOT NULL,
+    volume        NUMERIC(10,2) NOT NULL,
+    priority      VARCHAR(10) NOT NULL
+                  CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
+    status        VARCHAR(20) DEFAULT 'new'
+                  CHECK (status IN ('new', 'assembled', 'grouped',
+                                    'loaded', 'dispatched', 'delivered')),
+    assembled_by  INT REFERENCES users(id),
+    created_at    TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    assembled_at  TIMESTAMPTZ,
+    dispatched_at TIMESTAMPTZ,
+    delivered_at  TIMESTAMPTZ,
+    vehicle_id    INT REFERENCES vehicles(id)
+);
+
+CREATE TABLE IF NOT EXISTS parcel_items (
+    parcel_id  INT NOT NULL REFERENCES parcels(id),
+    product_id INT NOT NULL REFERENCES products(id),
+    quantity   INT NOT NULL,
+    PRIMARY KEY (parcel_id, product_id)
+);
+
+CREATE TABLE IF NOT EXISTS parcel_history (
+    id         SERIAL PRIMARY KEY,
+    parcel_id  INT NOT NULL REFERENCES parcels(id),
+    old_status VARCHAR(20)
+               CHECK (old_status IS NULL OR
+                      old_status IN ('new', 'assembled', 'grouped',
+                                     'loaded', 'dispatched', 'delivered')),
+    new_status VARCHAR(20) NOT NULL
+               CHECK (new_status IN ('new', 'assembled', 'grouped',
+                                     'loaded', 'dispatched', 'delivered')),
+    changed_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    changed_by INT REFERENCES users(id)
+);
