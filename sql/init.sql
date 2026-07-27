@@ -59,3 +59,24 @@ CREATE TABLE IF NOT EXISTS shelves (
     status         VARCHAR(20) DEFAULT 'active'
                    CHECK (status IN ('active', 'blocked', 'maintenance'))
 );
+
+CREATE TABLE IF NOT EXISTS products (
+    id                SERIAL PRIMARY KEY,
+    name              VARCHAR(255) NOT NULL,
+    supplier_id       INT REFERENCES suppliers(id),
+    type              VARCHAR(20) NOT NULL
+                      CHECK (type IN ('regular', 'perishable', 'oversized')),
+    unit_weight       NUMERIC(10,2) NOT NULL,
+    unit_volume       NUMERIC(10,2) NOT NULL,
+    unit_price        NUMERIC(10,2) NOT NULL,
+    quantity_in_stock INT DEFAULT 0,
+    shelf_life_days   INT
+);
+
+CREATE TABLE IF NOT EXISTS shelf_products (
+    shelf_id   INT NOT NULL REFERENCES shelves(id),
+    product_id INT NOT NULL REFERENCES products(id),
+    quantity   INT NOT NULL DEFAULT 0,
+    received_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (shelf_id, product_id)
+);
