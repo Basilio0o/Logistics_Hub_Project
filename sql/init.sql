@@ -115,3 +115,24 @@ CREATE TABLE IF NOT EXISTS order_items (
     quantity   INT NOT NULL,
     PRIMARY KEY (order_id, product_id)
 );
+
+CREATE TABLE IF NOT EXISTS vehicles (
+    id              SERIAL PRIMARY KEY,
+    number          VARCHAR(20) UNIQUE NOT NULL,
+    driver          VARCHAR(100) NOT NULL,
+    max_weight      NUMERIC(10,2) NOT NULL,
+    max_volume      NUMERIC(10,2) NOT NULL,
+    max_parcels     INT NOT NULL,
+    current_weight  NUMERIC(10,2) DEFAULT 0,
+    current_volume  NUMERIC(10,2) DEFAULT 0,
+    current_parcels INT DEFAULT 0,
+    status          VARCHAR(20) DEFAULT 'available'
+                    CHECK (status IN ('available', 'loading', 'on_route', 'off_duty')),
+    dispatched_by   INT REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS vehicle_districts (
+    vehicle_id  INT NOT NULL REFERENCES vehicles(id),
+    district_id INT NOT NULL REFERENCES districts(id),
+    PRIMARY KEY (vehicle_id, district_id)
+);

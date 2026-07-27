@@ -73,3 +73,14 @@ INSERT INTO order_items (order_id, product_id, quantity) VALUES
     (1, 2, 1),   -- 1 молоко в заказе 1
     (2, 3, 1)    -- 1 велосипед в заказе 2
 ON CONFLICT (order_id, product_id) DO NOTHING;
+
+INSERT INTO vehicles (number, driver, max_weight, max_volume, max_parcels) VALUES
+    ('А123БВ77', 'Петров П.П.', 500.00, 10.00, 20),
+    ('Х789ОР77', 'Сидоров С.С.', 1000.00, 20.00, 30)
+ON CONFLICT (number) DO NOTHING;
+
+INSERT INTO vehicle_districts (vehicle_id, district_id) VALUES
+    (1, 1),   -- машина 1 обслуживает Центральный
+    (1, 2),   -- машина 1 обслуживает Северный
+    (2, 1)    -- машина 2 обслуживает Центральный
+ON CONFLICT (vehicle_id, district_id) DO NOTHING;
