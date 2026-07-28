@@ -1,11 +1,11 @@
 #pragma once
 #include <string>
 
-class ProductPart {
+class ShelfProduct {
    public:
-    ProductPart();
-    ProductPart(int shelf_id, int product_id, int quantity, const std::string& received_at);
-    ~ProductPart() = default;
+    ShelfProduct();
+    ShelfProduct(int shelf_id, int product_id, int quantity, const std::string& received_at);
+    ~ShelfProduct() = default;
 
     int getShelfId() const;
     int getProductId() const;

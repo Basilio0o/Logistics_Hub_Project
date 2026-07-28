@@ -390,7 +390,7 @@ logistics_hub/
 | | | | - Shelf.h
 | | | - Product/
 | | | | - Product.h
-| | | | - ProductPart.h
+| | | | - ShelfProduct.h
 | | | - Supplier.h
 | | | - Supply/
 | | | | - Supply.h
@@ -434,7 +434,7 @@ logistics_hub/
 | | | | - Shelf.cpp
 | | | - Product/
 | | | | - Product.cpp
-| | | | - ProductPart.cpp
+| | | | - ShelfProduct.cpp
 | | | - Supplier.cpp
 | | | - Supply/
 | | | | - Supply.cpp
