@@ -1,9 +1,9 @@
 #include "models/Supplier.h"
 
-Supplier::Supplier() : id(0), name(""), phone(""), address("") {}
+Supplier::Supplier() : id(0), name(""), phone(std::nullopt), address(std::nullopt) {}
 
-Supplier::Supplier(int id, const std::string& name, const std::string& phone,
-                   const std::string& address)
+Supplier::Supplier(int id, const std::string& name, std::optional<std::string> phone,
+                   std::optional<std::string> address)
     : id(id), name(name), phone(phone), address(address) {}
 
 int Supplier::getId() const {
@@ -14,10 +14,10 @@ const std::string& Supplier::getName() const {
     return name;
 }
 
-const std::string& Supplier::getPhone() const {
+std::optional<std::string> Supplier::getPhone() const {
     return phone;
 }
 
-const std::string& Supplier::getAddress() const {
+std::optional<std::string> Supplier::getAddress() const {
     return address;
 }
