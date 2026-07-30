@@ -13,9 +13,8 @@ std::vector<User> UserRepository::getAll() {
 }
 
 std::optional<User> UserRepository::getById(int id) {
-    std::string sql =
-        "SELECT id, login, pass_hash, role, created_at FROM users WHERE id = " + std::to_string(id);
-    auto result = db.query(sql);
+    std::string sql = "SELECT id, login, pass_hash, role, created_at FROM users WHERE id = $1";
+    auto result = db.query_params(sql, id);
 
     if (result.empty()) {
         return std::nullopt;
@@ -24,9 +23,8 @@ std::optional<User> UserRepository::getById(int id) {
 }
 
 std::optional<User> UserRepository::getByLogin(const std::string& login) {
-    std::string sql =
-        "SELECT id, login, pass_hash, role, created_at FROM users WHERE login = '" + login + "'";
-    auto result = db.query(sql);
+    std::string sql = "SELECT id, login, pass_hash, role, created_at FROM users WHERE login = $1";
+    auto result = db.query_params(sql, login);
 
     if (result.empty()) {
         return std::nullopt;

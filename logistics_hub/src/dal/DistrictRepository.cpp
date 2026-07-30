@@ -13,8 +13,8 @@ std::vector<District> DistrictRepository::getAll() {
 }
 
 std::optional<District> DistrictRepository::getById(int id) {
-    std::string sql = "SELECT id, name FROM districts WHERE id = " + std::to_string(id);
-    auto result = db.query(sql);
+    std::string sql = "SELECT id, name FROM districts WHERE id = $1";
+    auto result = db.query_params(sql, id);
 
     if (result.empty()) {
         return std::nullopt;
