@@ -65,3 +65,43 @@ CREATE TRIGGER trg_parcel_status_history
 AFTER INSERT OR UPDATE OF status ON parcels
 FOR EACH ROW
 EXECUTE FUNCTION log_parcel_status_change();
+
+BEGIN;
+
+CREATE OR REPLACE FUNCTION update_parcel_dimensions()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_parcel_id INT;
+BEGIN
+    IF TG_OP IN ('INSERT', 'UPDATE') THEN
+        v_parcel_id := NEW.parcel_id;
+    ELSIF TG_OP = 'DELETE' THEN
+        v_parcel_id := OLD.parcel_id;
+    END IF;
+
+    UPDATE parcels
+    SET weight = (
+        SELECT COALESCE(SUM(pi.quantity * p.unit_weight), 0)
+        FROM parcel_items pi
+        JOIN products p ON p.id = pi.product_id
+        WHERE pi.parcel_id = v_parcel_id
+    ),
+    volume = (
+        SELECT COALESCE(SUM(pi.quantity * p.unit_volume), 0)
+        FROM parcel_items pi
+        JOIN products p ON p.id = pi.product_id
+        WHERE pi.parcel_id = v_parcel_id
+    )
+    WHERE id = v_parcel_id;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_parcel_items_dimensions ON parcel_items;
+CREATE TRIGGER trg_parcel_items_dimensions
+AFTER INSERT OR UPDATE OR DELETE ON parcel_items
+FOR EACH ROW
+EXECUTE FUNCTION update_parcel_dimensions();
+
+COMMIT;
