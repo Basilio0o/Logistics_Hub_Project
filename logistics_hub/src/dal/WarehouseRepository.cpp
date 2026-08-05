@@ -47,13 +47,6 @@ void WarehouseRepository::updateZone(int id, const std::string& name, const std:
         name, code, max_weight, max_volume);
 }
 
-void WarehouseRepository::updateZoneCurrent(int zoneId, double weightDelta, double volumeDelta) {
-    db.execute_params(
-        "UPDATE zones SET current_weight = current_weight + $2, "
-        "current_volume = current_volume + $3 WHERE id = $1",
-        zoneId, weightDelta, volumeDelta);
-}
-
 std::vector<Zone> WarehouseRepository::getAllZones() {
     auto result = db.query(
         "SELECT id, warehouse_id, name, code, max_weight, max_volume, current_weight, "
@@ -103,13 +96,6 @@ void WarehouseRepository::updateRack(int id, const std::string& code, double max
                       id, code, max_weight, max_volume);
 }
 
-void WarehouseRepository::updateRackCurrent(int rackId, double weightDelta, double volumeDelta) {
-    db.execute_params(
-        "UPDATE racks SET current_weight = current_weight + $2, "
-        "current_volume = current_volume + $3 WHERE id = $1",
-        rackId, weightDelta, volumeDelta);
-}
-
 int WarehouseRepository::createShelf(int rack_id, const std::string& code, double max_weight,
                                      double max_volume) {
     auto result = db.query_params(
@@ -128,13 +114,6 @@ void WarehouseRepository::updateShelf(int id, const std::string& code, double ma
 
 void WarehouseRepository::updateShelfStatus(int shelf_id, const std::string& status) {
     db.execute_params("UPDATE shelves SET status = $2 WHERE id = $1", shelf_id, status);
-}
-
-void WarehouseRepository::updateShelfCurrent(int shelfId, double weightDelta, double volumeDelta) {
-    db.execute_params(
-        "UPDATE shelves SET current_weight = current_weight + $2, "
-        "current_volume = current_volume + $3 WHERE id = $1",
-        shelfId, weightDelta, volumeDelta);
 }
 
 std::vector<Shelf> WarehouseRepository::getShelvesByRackId(int rackId) {

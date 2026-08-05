@@ -28,8 +28,6 @@ AFTER INSERT OR UPDATE OR DELETE ON shelf_products
 FOR EACH ROW
 EXECUTE FUNCTION update_product_stock();
 
-COMMIT;
-
 CREATE OR REPLACE FUNCTION set_parcel_status_dates()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -155,3 +153,71 @@ DROP TRIGGER IF EXISTS trg_vehicles_status_change ON vehicles;
 CREATE TRIGGER trg_vehicles_status_change
 AFTER UPDATE OF status ON vehicles
 FOR EACH ROW EXECUTE FUNCTION fn_vehicles_status_change();
+
+CREATE OR REPLACE FUNCTION update_placement_counters()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_old_shelf INT := NULL;
+    v_new_shelf INT := NULL;
+BEGIN
+    IF TG_OP IN ('INSERT', 'UPDATE') THEN
+        v_new_shelf := NEW.shelf_id;
+    END IF;
+    IF TG_OP = 'DELETE' THEN
+        v_old_shelf := OLD.shelf_id;
+    END IF;
+
+    UPDATE shelves s
+    SET current_weight = t.w, current_volume = t.v
+    FROM (
+        SELECT sp.shelf_id,
+               COALESCE(SUM(p.unit_weight * sp.quantity), 0) AS w,
+               COALESCE(SUM(p.unit_volume * sp.quantity), 0) AS v
+        FROM shelf_products sp
+        JOIN products p ON p.id = sp.product_id
+        WHERE sp.shelf_id IN (v_old_shelf, v_new_shelf)
+        GROUP BY sp.shelf_id
+    ) t
+    WHERE s.id = t.shelf_id;
+
+    UPDATE shelves s
+    SET current_weight = 0, current_volume = 0
+    WHERE s.id IN (v_old_shelf, v_new_shelf)
+      AND NOT EXISTS (SELECT 1 FROM shelf_products sp WHERE sp.shelf_id = s.id);
+
+    UPDATE racks r
+    SET current_weight = t.w, current_volume = t.v
+    FROM (
+        SELECT s.rack_id,
+               SUM(s.current_weight) AS w, SUM(s.current_volume) AS v
+        FROM shelves s
+        WHERE s.rack_id IN (
+            SELECT rack_id FROM shelves WHERE id IN (v_old_shelf, v_new_shelf))
+        GROUP BY s.rack_id
+    ) t
+    WHERE r.id = t.rack_id;
+
+    UPDATE zones z
+    SET current_weight = t.w, current_volume = t.v
+    FROM (
+        SELECT r.zone_id,
+               SUM(r.current_weight) AS w, SUM(r.current_volume) AS v
+        FROM racks r
+        WHERE r.zone_id IN (
+            SELECT zone_id FROM racks WHERE id IN (
+                SELECT rack_id FROM shelves WHERE id IN (v_old_shelf, v_new_shelf)))
+        GROUP BY r.zone_id
+    ) t
+    WHERE z.id = t.zone_id;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_shelf_products_placement ON shelf_products;
+CREATE TRIGGER trg_shelf_products_placement
+AFTER INSERT OR UPDATE OR DELETE ON shelf_products
+FOR EACH ROW
+EXECUTE FUNCTION update_placement_counters();
+
+COMMIT;
