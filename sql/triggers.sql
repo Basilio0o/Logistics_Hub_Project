@@ -105,3 +105,53 @@ FOR EACH ROW
 EXECUTE FUNCTION update_parcel_dimensions();
 
 COMMIT;
+
+CREATE OR REPLACE FUNCTION fn_vehicles_load() 
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.vehicle_id IS DISTINCT FROM OLD.vehicle_id THEN
+        IF OLD.vehicle_id IS NOT NULL THEN
+            UPDATE vehicles
+            SET current_weight  = current_weight - OLD.weight,
+                current_volume  = current_volume - OLD.volume,
+                current_parcels = current_parcels - 1
+            WHERE id = OLD.vehicle_id;
+        END IF;
+        IF NEW.vehicle_id IS NOT NULL THEN
+            UPDATE vehicles
+            SET current_weight  = current_weight + NEW.weight,
+                current_volume  = current_volume + NEW.volume,
+                current_parcels = current_parcels + 1
+            WHERE id = NEW.vehicle_id;
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_vehicles_load ON parcels;
+CREATE TRIGGER trg_vehicles_load
+AFTER UPDATE OF vehicle_id ON parcels
+FOR EACH ROW EXECUTE FUNCTION fn_vehicles_load();
+
+CREATE OR REPLACE FUNCTION fn_vehicles_status_change() RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'on_route' AND OLD.status <> 'on_route' THEN
+        -- отправка в рейс: посылки машины становятся dispatched
+        UPDATE parcels
+        SET status = 'dispatched'
+        WHERE vehicle_id = NEW.id AND status = 'loaded';
+    ELSIF OLD.status = 'on_route' AND NEW.status = 'available' THEN
+        -- возврат из рейса: посылки доставлены, машина разгружена
+        UPDATE parcels
+        SET status = 'delivered', vehicle_id = NULL
+        WHERE vehicle_id = NEW.id AND status IN ('loaded', 'dispatched');
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_vehicles_status_change ON vehicles;
+CREATE TRIGGER trg_vehicles_status_change
+AFTER UPDATE OF status ON vehicles
+FOR EACH ROW EXECUTE FUNCTION fn_vehicles_status_change();
