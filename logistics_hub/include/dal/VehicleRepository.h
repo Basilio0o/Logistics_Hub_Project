@@ -10,7 +10,7 @@
 
 class VehicleRepository {
    public:
-    VehicleRepository(Db& db) : db(db) {}
+    explicit VehicleRepository(Db& db) : db(db) {}
 
     int createVehicle(const std::string& number, const std::string& driver, double max_weight,
                       double max_volume, int max_parcels);

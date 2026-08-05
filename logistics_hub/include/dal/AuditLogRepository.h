@@ -10,7 +10,7 @@
 
 class AuditLogRepository {
    public:
-    AuditLogRepository(Db& db) : db(db) {}
+    explicit AuditLogRepository(Db& db) : db(db) {}
 
     void add(const std::string& entity_type, int entity_id, const std::string& operation,
              const std::string& details);

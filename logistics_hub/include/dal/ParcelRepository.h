@@ -10,7 +10,7 @@
 
 class ParcelRepository {
    public:
-    ParcelRepository(Db& db) : db(db) {}
+    explicit ParcelRepository(Db& db) : db(db) {}
 
     int createParcel(int order_id, int district_id, const std::string& type,
                      const std::string& priority);
