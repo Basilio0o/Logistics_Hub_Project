@@ -23,6 +23,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_shelf_products_stock ON shelf_products;
 CREATE TRIGGER trg_shelf_products_stock
 AFTER INSERT OR UPDATE OR DELETE ON shelf_products
 FOR EACH ROW
@@ -42,6 +43,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_parcels_status_dates ON parcels;
 CREATE TRIGGER trg_parcels_status_dates
 BEFORE UPDATE OF status ON parcels
 FOR EACH ROW
@@ -59,12 +61,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_parcel_status_history ON parcels;
 CREATE TRIGGER trg_parcel_status_history
 AFTER INSERT OR UPDATE OF status ON parcels
 FOR EACH ROW
 EXECUTE FUNCTION log_parcel_status_change();
-
-BEGIN;
 
 CREATE OR REPLACE FUNCTION update_parcel_dimensions()
 RETURNS TRIGGER AS $$
@@ -101,8 +102,6 @@ CREATE TRIGGER trg_parcel_items_dimensions
 AFTER INSERT OR UPDATE OR DELETE ON parcel_items
 FOR EACH ROW
 EXECUTE FUNCTION update_parcel_dimensions();
-
-COMMIT;
 
 CREATE OR REPLACE FUNCTION fn_vehicles_load() 
 RETURNS TRIGGER AS $$
@@ -163,7 +162,7 @@ BEGIN
     IF TG_OP IN ('INSERT', 'UPDATE') THEN
         v_new_shelf := NEW.shelf_id;
     END IF;
-    IF TG_OP = 'DELETE' THEN
+    IF TG_OP IN ('UPDATE', 'DELETE') THEN
         v_old_shelf := OLD.shelf_id;
     END IF;
 
