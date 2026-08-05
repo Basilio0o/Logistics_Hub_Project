@@ -32,30 +32,30 @@ CREATE TABLE IF NOT EXISTS zones (
     name           VARCHAR(50) NOT NULL
                    CHECK (name IN ('Обычная', 'Холодная', 'Крупногабаритная')),
     code           VARCHAR(10) NOT NULL,
-    max_weight     NUMERIC(10,2),
-    max_volume     NUMERIC(10,2),
-    current_weight NUMERIC(10,2) DEFAULT 0,
-    current_volume NUMERIC(10,2) DEFAULT 0
+    max_weight     NUMERIC(10,3),
+    max_volume     NUMERIC(10,3),
+    current_weight NUMERIC(10,3) DEFAULT 0,
+    current_volume NUMERIC(10,3) DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS racks (
     id             SERIAL PRIMARY KEY,
     zone_id        INT NOT NULL REFERENCES zones(id),
     code           VARCHAR(20) NOT NULL,
-    max_weight     NUMERIC(10,2),
-    max_volume     NUMERIC(10,2),
-    current_weight NUMERIC(10,2) DEFAULT 0,
-    current_volume NUMERIC(10,2) DEFAULT 0
+    max_weight     NUMERIC(10,3),
+    max_volume     NUMERIC(10,3),
+    current_weight NUMERIC(10,3) DEFAULT 0,
+    current_volume NUMERIC(10,3) DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS shelves (
     id             SERIAL PRIMARY KEY,
     rack_id        INT NOT NULL REFERENCES racks(id),
     code           VARCHAR(30) NOT NULL,
-    max_weight     NUMERIC(10,2),
-    max_volume     NUMERIC(10,2),
-    current_weight NUMERIC(10,2) DEFAULT 0,
-    current_volume NUMERIC(10,2) DEFAULT 0,
+    max_weight     NUMERIC(10,3),
+    max_volume     NUMERIC(10,3),
+    current_weight NUMERIC(10,3) DEFAULT 0,
+    current_volume NUMERIC(10,3) DEFAULT 0,
     status         VARCHAR(20) DEFAULT 'active'
                    CHECK (status IN ('active', 'blocked', 'maintenance'))
 );
@@ -66,8 +66,8 @@ CREATE TABLE IF NOT EXISTS products (
     supplier_id       INT REFERENCES suppliers(id),
     type              VARCHAR(20) NOT NULL
                       CHECK (type IN ('regular', 'perishable', 'oversized')),
-    unit_weight       NUMERIC(10,2) NOT NULL,
-    unit_volume       NUMERIC(10,2) NOT NULL,
+    unit_weight       NUMERIC(10,3) NOT NULL,
+    unit_volume       NUMERIC(10,3) NOT NULL,
     unit_price        NUMERIC(10,2) NOT NULL,
     quantity_in_stock INT DEFAULT 0,
     shelf_life_days   INT
@@ -120,11 +120,11 @@ CREATE TABLE IF NOT EXISTS vehicles (
     id              SERIAL PRIMARY KEY,
     number          VARCHAR(20) UNIQUE NOT NULL,
     driver          VARCHAR(100) NOT NULL,
-    max_weight      NUMERIC(10,2) NOT NULL,
-    max_volume      NUMERIC(10,2) NOT NULL,
+    max_weight      NUMERIC(10,3) NOT NULL,
+    max_volume      NUMERIC(10,3) NOT NULL,
     max_parcels     INT NOT NULL,
-    current_weight  NUMERIC(10,2) DEFAULT 0,
-    current_volume  NUMERIC(10,2) DEFAULT 0,
+    current_weight  NUMERIC(10,3) DEFAULT 0,
+    current_volume  NUMERIC(10,3) DEFAULT 0,
     current_parcels INT DEFAULT 0,
     status          VARCHAR(20) DEFAULT 'available'
                     CHECK (status IN ('available', 'loading', 'on_route', 'off_duty')),
@@ -143,8 +143,8 @@ CREATE TABLE IF NOT EXISTS parcels (
     district_id   INT NOT NULL REFERENCES districts(id),
     type          VARCHAR(20) NOT NULL
                   CHECK (type IN ('standard', 'express', 'oversized')),
-    weight        NUMERIC(10,2) NOT NULL,
-    volume        NUMERIC(10,2) NOT NULL,
+    weight        NUMERIC(10,3) NOT NULL,
+    volume        NUMERIC(10,3) NOT NULL,
     priority      VARCHAR(10) NOT NULL
                   CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
     status        VARCHAR(20) DEFAULT 'new'
