@@ -1,5 +1,19 @@
 #include "dal/WarehouseRepository.h"
 
+int WarehouseRepository::createWarehouse(const std::string& name, const std::string& address,
+                                         double square) {
+    auto result = db.query_params(
+        "INSERT INTO warehouses (name, address, square) VALUES($1, $2, $3) RETURNING id", name,
+        address, square);
+    return result[0]["id"].as<int>();
+}
+
+void WarehouseRepository::updateWarehouse(int id, const std::string& name,
+                                          const std::string& address, double square) {
+    db.execute_params("UPDATE warehouses SET name = $2, address = $3, square = $4 WHERE id = $1",
+                      id, name, address, square);
+}
+
 std::vector<Warehouse> WarehouseRepository::getAllWarehouses() {
     auto result = db.query("SELECT id, name, address, square FROM warehouses");
     std::vector<Warehouse> warehouses;
@@ -15,6 +29,29 @@ std::optional<Warehouse> WarehouseRepository::getWarehouseById(int id) {
         db.query_params("SELECT id, name, address, square FROM warehouses WHERE id = $1", id);
     if (result.empty()) return std::nullopt;
     return mapWarehouse(result[0]);
+}
+
+int WarehouseRepository::createZone(int warehouse_id, const std::string& name,
+                                    const std::string& code, double max_weight, double max_volume) {
+    auto result = db.query_params(
+        "INSERT INTO zones (warehouse_id, name, code, max_weight, max_volume) "
+        "VALUES($1, $2, $3, $4, $5) RETURNING id",
+        warehouse_id, name, code, max_weight, max_volume);
+    return result[0]["id"].as<int>();
+}
+
+void WarehouseRepository::updateZone(int id, const std::string& name, const std::string& code,
+                                     double max_weight, double max_volume) {
+    db.execute_params(
+        "UPDATE zones SET name = $2, code = $3, max_weight = $4, max_volume = $5 WHERE id = $1", id,
+        name, code, max_weight, max_volume);
+}
+
+void WarehouseRepository::updateZoneCurrent(int zoneId, double weightDelta, double volumeDelta) {
+    db.execute_params(
+        "UPDATE zones SET current_weight = current_weight + $2, "
+        "current_volume = current_volume + $3 WHERE id = $1",
+        zoneId, weightDelta, volumeDelta);
 }
 
 std::vector<Zone> WarehouseRepository::getAllZones() {
@@ -38,13 +75,6 @@ std::optional<Zone> WarehouseRepository::getZoneByName(const std::string& name) 
     return mapZone(result[0]);
 }
 
-void WarehouseRepository::updateZoneCurrent(int zoneId, double weightDelta, double volumeDelta) {
-    db.execute_params(
-        "UPDATE zones SET current_weight = current_weight + $2, "
-        "current_volume = current_volume + $3 WHERE id = $1",
-        zoneId, weightDelta, volumeDelta);
-}
-
 std::vector<Rack> WarehouseRepository::getRacksByZoneId(int zoneId) {
     auto result = db.query_params(
         "SELECT id, zone_id, code, max_weight, max_volume, "
@@ -58,11 +88,53 @@ std::vector<Rack> WarehouseRepository::getRacksByZoneId(int zoneId) {
     return racks;
 }
 
+int WarehouseRepository::createRack(int zone_id, const std::string& code, double max_weight,
+                                    double max_volume) {
+    auto result = db.query_params(
+        "INSERT INTO racks (zone_id, code, max_weight, max_volume) "
+        "VALUES($1, $2, $3, $4) RETURNING id",
+        zone_id, code, max_weight, max_volume);
+    return result[0]["id"].as<int>();
+}
+
+void WarehouseRepository::updateRack(int id, const std::string& code, double max_weight,
+                                     double max_volume) {
+    db.execute_params("UPDATE racks SET code = $2, max_weight = $3, max_volume = $4 WHERE id = $1",
+                      id, code, max_weight, max_volume);
+}
+
 void WarehouseRepository::updateRackCurrent(int rackId, double weightDelta, double volumeDelta) {
     db.execute_params(
         "UPDATE racks SET current_weight = current_weight + $2, "
         "current_volume = current_volume + $3 WHERE id = $1",
         rackId, weightDelta, volumeDelta);
+}
+
+int WarehouseRepository::createShelf(int rack_id, const std::string& code, double max_weight,
+                                     double max_volume) {
+    auto result = db.query_params(
+        "INSERT INTO shelves (rack_id, code, max_weight, max_volume) "
+        "VALUES($1, $2, $3, $4) RETURNING id",
+        rack_id, code, max_weight, max_volume);
+    return result[0]["id"].as<int>();
+}
+
+void WarehouseRepository::updateShelf(int id, const std::string& code, double max_weight,
+                                      double max_volume) {
+    db.execute_params(
+        "UPDATE shelves SET code = $2, max_weight = $3, max_volume = $4 WHERE id = $1", id, code,
+        max_weight, max_volume);
+}
+
+void WarehouseRepository::updateShelfStatus(int shelf_id, const std::string& status) {
+    db.execute_params("UPDATE shelves SET status = $2 WHERE id = $1", shelf_id, status);
+}
+
+void WarehouseRepository::updateShelfCurrent(int shelfId, double weightDelta, double volumeDelta) {
+    db.execute_params(
+        "UPDATE shelves SET current_weight = current_weight + $2, "
+        "current_volume = current_volume + $3 WHERE id = $1",
+        shelfId, weightDelta, volumeDelta);
 }
 
 std::vector<Shelf> WarehouseRepository::getShelvesByRackId(int rackId) {
@@ -92,13 +164,6 @@ std::vector<Shelf> WarehouseRepository::findActiveShelvesByZoneId(int zoneId) {
         shelves.push_back(mapShelf(row));
     }
     return shelves;
-}
-
-void WarehouseRepository::updateShelfCurrent(int shelfId, double weightDelta, double volumeDelta) {
-    db.execute_params(
-        "UPDATE shelves SET current_weight = current_weight + $2, "
-        "current_volume = current_volume + $3 WHERE id = $1",
-        shelfId, weightDelta, volumeDelta);
 }
 
 Warehouse WarehouseRepository::mapWarehouse(const pqxx::row& row) {

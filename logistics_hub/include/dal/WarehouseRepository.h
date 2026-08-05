@@ -13,19 +13,35 @@ class WarehouseRepository {
    public:
     explicit WarehouseRepository(Db& db) : db(db) {}
 
+    int createWarehouse(const std::string& name, const std::string& address, double square);
+    void updateWarehouse(int id, const std::string& name, const std::string& address,
+                         double square);
+
     std::vector<Warehouse> getAllWarehouses();
     std::optional<Warehouse> getWarehouseById(int id);
 
-    std::vector<Zone> getAllZones();
-    std::optional<Zone> getZoneByName(const std::string& name);
+    int createZone(int warehouse_id, const std::string& name, const std::string& code,
+                   double max_weight, double max_volume);
+    void updateZone(int id, const std::string& name, const std::string& code, double max_weight,
+                    double max_volume);
     void updateZoneCurrent(int zoneId, double weightDelta, double volumeDelta);
 
-    std::vector<Rack> getRacksByZoneId(int zoneId);
+    std::vector<Zone> getAllZones();
+    std::optional<Zone> getZoneByName(const std::string& name);
+
+    int createRack(int zone_id, const std::string& code, double max_weight, double max_volume);
+    void updateRack(int id, const std::string& code, double max_weight, double max_volume);
     void updateRackCurrent(int rackId, double weightDelta, double volumeDelta);
+
+    std::vector<Rack> getRacksByZoneId(int zoneId);
+
+    int createShelf(int rack_id, const std::string& code, double max_weight, double max_volume);
+    void updateShelf(int id, const std::string& code, double max_weight, double max_volume);
+    void updateShelfStatus(int shelf_id, const std::string& status);
+    void updateShelfCurrent(int shelfId, double weightDelta, double volumeDelta);
 
     std::vector<Shelf> getShelvesByRackId(int rackId);
     std::vector<Shelf> findActiveShelvesByZoneId(int zoneId);
-    void updateShelfCurrent(int shelfId, double weightDelta, double volumeDelta);
 
    private:
     Db& db;

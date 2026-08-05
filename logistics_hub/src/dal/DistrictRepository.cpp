@@ -1,5 +1,14 @@
 #include "dal/DistrictRepository.h"
 
+int DistrictRepository::createDistrict(const std::string& name) {
+    auto result = db.query_params("INSERT INTO districts (name) VALUES($1) RETURNING id", name);
+    return result[0]["id"].as<int>();
+}
+
+void DistrictRepository::updateDistrict(int id, const std::string& name) {
+    db.execute_params("UPDATE districts SET name = $2 WHERE id = $1", id, name);
+}
+
 std::vector<District> DistrictRepository::getAll() {
     auto result = db.query("SELECT id, name FROM districts");
 

@@ -1,5 +1,13 @@
 #include "dal/UserRepository.h"
 
+int UserRepository::createUser(const std::string& login, const std::string& pass_hash,
+                               const std::string& role) {
+    auto result = db.query_params(
+        "INSERT INTO users (login, pass_hash, role) VALUES($1, $2, $3) RETURNING id", login,
+        pass_hash, role);
+    return result[0]["id"].as<int>();
+}
+
 std::vector<User> UserRepository::getAll() {
     auto result = db.query("SELECT id, login, pass_hash, role, created_at FROM users");
 

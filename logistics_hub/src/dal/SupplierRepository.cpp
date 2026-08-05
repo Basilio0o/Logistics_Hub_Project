@@ -1,5 +1,21 @@
 #include "dal/SupplierRepository.h"
 
+int SupplierRepository::createSupplier(const std::string& name,
+                                       const std::optional<std::string>& phone,
+                                       const std::optional<std::string>& address) {
+    auto result = db.query_params(
+        "INSERT INTO suppliers (name, phone, address) VALUES($1, $2, $3) RETURNING id", name, phone,
+        address);
+    return result[0]["id"].as<int>();
+}
+
+void SupplierRepository::updateSupplier(int id, const std::string& name,
+                                        const std::optional<std::string>& phone,
+                                        const std::optional<std::string>& address) {
+    db.execute_params("UPDATE suppliers SET name = $2, phone = $3, address = $4 WHERE id = $1", id,
+                      name, phone, address);
+}
+
 std::vector<Supplier> SupplierRepository::getAll() {
     auto result = db.query("SELECT id, name, phone, address FROM suppliers");
 
