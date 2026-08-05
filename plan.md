@@ -158,28 +158,28 @@
 - Склад (ссылка на Склад, NOT NULL)
 - Название (VARCHAR(50), NOT NULL): Обычная, Холодная, Крупногабаритная
 - Код (VARCHAR(10), NOT NULL)
-- Максимальный вес (NUMERIC(10,2))
-- Максимальный объём (NUMERIC(10,2))
-- Текущий вес (NUMERIC(10,2), DEFAULT 0)
-- Текущий объём (NUMERIC(10,2), DEFAULT 0)
+- Максимальный вес (NUMERIC(10,3))
+- Максимальный объём (NUMERIC(10,3))
+- Текущий вес (NUMERIC(10,3), DEFAULT 0)
+- Текущий объём (NUMERIC(10,3), DEFAULT 0)
 
 ### Стеллаж
 - ID (INT, PK)
 - Зона (ссылка на Зону, NOT NULL)
 - Код (VARCHAR(20), NOT NULL)
-- Максимальный вес (NUMERIC(10,2))
-- Максимальный объём (NUMERIC(10,2))
-- Текущий вес (NUMERIC(10,2), DEFAULT 0)
-- Текущий объём (NUMERIC(10,2), DEFAULT 0)
+- Максимальный вес (NUMERIC(10,3))
+- Максимальный объём (NUMERIC(10,3))
+- Текущий вес (NUMERIC(10,3), DEFAULT 0)
+- Текущий объём (NUMERIC(10,3), DEFAULT 0)
 
 ### Полка
 - ID (INT, PK)
 - Стеллаж (ссылка на Стеллаж, NOT NULL)
 - Код (VARCHAR(30), NOT NULL)
-- Максимальный вес (NUMERIC(10,2))
-- Максимальный объём (NUMERIC(10,2))
-- Текущий вес (NUMERIC(10,2), DEFAULT 0)
-- Текущий объём (NUMERIC(10,2), DEFAULT 0)
+- Максимальный вес (NUMERIC(10,3))
+- Максимальный объём (NUMERIC(10,3))
+- Текущий вес (NUMERIC(10,3), DEFAULT 0)
+- Текущий объём (NUMERIC(10,3), DEFAULT 0)
 - Статус (VARCHAR(20), DEFAULT 'active'): active, blocked, maintenance
 
 ### Товар
@@ -187,8 +187,8 @@
 - Название (VARCHAR(255), NOT NULL)
 - Поставщик (ссылка на Поставщика)
 - Тип (VARCHAR(20), NOT NULL): regular, perishable, oversized
-- Вес единицы (NUMERIC(10,2), NOT NULL)
-- Объём единицы (NUMERIC(10,2), NOT NULL)
+- Вес единицы (NUMERIC(10,3)| | | -, NOT NULL)
+- Объём единицы (NUMERIC(10,3), NOT NULL)
 - Цена за единицу (NUMERIC(10,2), NOT NULL)
 - Количество на складе (INT, DEFAULT 0)
 - Срок годности (INT, NULL)
@@ -240,8 +240,8 @@
 - Заказ (ссылка на Заказ, NOT NULL)
 - Район доставки (ссылка на Район, NOT NULL)
 - Тип (VARCHAR(20), NOT NULL): standard, express, oversized
-- Вес (NUMERIC(10,2), NOT NULL)
-- Объём (NUMERIC(10,2), NOT NULL)
+- Вес (NUMERIC(10,3), NOT NULL)
+- Объём (NUMERIC(10,3), NOT NULL)
 - Приоритет (VARCHAR(10), NOT NULL): low, normal, high, urgent
 - Статус (VARCHAR(20), DEFAULT 'new'): new, assembled, grouped, loaded, dispatched, delivered
 - Кто собрал (ссылка на Пользователя)
@@ -260,11 +260,11 @@
 - ID (INT, PK)
 - Номер (VARCHAR(20), UNIQUE, NOT NULL)
 - Водитель (VARCHAR(100), NOT NULL)
-- Вместимость по весу (NUMERIC(10,2), NOT NULL)
-- Вместимость по объёму (NUMERIC(10,2), NOT NULL)
+- Вместимость по весу (NUMERIC(10,3), NOT NULL)
+- Вместимость по объёму (NUMERIC(10,3), NOT NULL)
 - Максимальное количество посылок (INT, NOT NULL)
-- Текущий вес (NUMERIC(10,2), DEFAULT 0)
-- Текущий объём (NUMERIC(10,2), DEFAULT 0)
+- Текущий вес (NUMERIC(10,3), DEFAULT 0)
+- Текущий объём (NUMERIC(10,3), DEFAULT 0)
 - Текущее количество посылок (INT, DEFAULT 0)
 - Статус (VARCHAR(20), DEFAULT 'available'): available, loading, on_route, off_duty
 - Кто отправил (ссылка на Пользователя, NULL)
@@ -408,6 +408,15 @@ logistics_hub/
 | | | - User.h
 | | - dal/
 | | | - Db.h
+| | | - DistrictRepository.h
+| | | - OrderRepository.h
+| | | - ParcelRepository.h
+| | | - ProductRepository.h
+| | | - SupplierRepository.h
+| | | - SupplyRepository.h
+| | | - UserRepository.h
+| | | - VehicleRepository.h
+| | | - WarehouseRepository.h
 | | - services/
 | | | - WarehouseService.h
 | | | - DeliveryService.h
@@ -451,7 +460,17 @@ logistics_hub/
 | | | - AuditLog.cpp
 | | | - User.cpp
 | | - dal/
+| | | - AuditLogRepository.cpp
 | | | - Db.cpp
+| | | - DistrictRepository.cpp
+| | | - OrderRepository.cpp
+| | | - ParcelRepository.cpp
+| | | - ProductRepository.cpp
+| | | - SupplierRepository.cpp
+| | | - SupplyRepository.cpp
+| | | - UserRepository.cpp
+| | | - VehicleRepository.cpp
+| | | - WarehouseRepository.cpp
 | | - services/
 | | | - WarehouseService.cpp
 | | | - DeliveryService.cpp
@@ -494,6 +513,7 @@ Logistics_Hub_Project/
 | - sql/
 | | - init.sql
 | | - seed.sql
+| | - triggers.sql
 | - plan.md
 | - README
 | - .gitignore
