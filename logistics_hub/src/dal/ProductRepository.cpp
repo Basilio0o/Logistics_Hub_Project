@@ -25,14 +25,18 @@ void ProductRepository::addOrUpdateShelfProduct(int shelf_id, int product_id, in
     db.execute_params(
         "INSERT INTO shelf_products (shelf_id, product_id, quantity, received_at) VALUES($1, $2, "
         "$3, CURRENT_TIMESTAMP) ON CONFLICT (shelf_id, product_id) DO UPDATE SET quantity = "
-        "shelf_products.quantity + EXCLUDED.quantity, received_at = CURRENT_TIMESTAMP",
+        "shelf_products.quantity + EXCLUDED.quantity",
         shelf_id, product_id, quantity);
 }
 
 void ProductRepository::decreaseShelfProductQuantity(int shelf_id, int product_id, int quantity) {
     db.execute_params(
-        "UPDATE shelf_products set quantity = quantity - $3 WHERE shelf_id = $1 "
-        "AND product_id = $2 AND quantity >= $3",
+        "WITH del AS ( "
+        "DELETE FROM shelf_products WHERE shelf_id = $1 AND product_id = "
+        "$2 AND quantity = $3 RETURNING shelf_id "
+        ") "
+        "UPDATE shelf_products SET quantity = quantity - $3 WHERE shelf_id = $1 AND product_id = "
+        "$2 AND quantity > $3",
         shelf_id, product_id, quantity);
 }
 
