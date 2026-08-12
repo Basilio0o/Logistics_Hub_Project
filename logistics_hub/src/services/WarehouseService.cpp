@@ -66,9 +66,75 @@ PlacementResult WarehouseService::placeProduct(int product_id, int quantity) {
     return result;
 }
 
+void WarehouseService::acceptSupply(int supply_id, int accepted_by) {
+    const auto supply = supplyRepo.getSupplyById(supply_id);
+
+    if (!supply)
+        throw std::runtime_error("Поставка с id " + std::to_string(supply_id) + "не найдена");
+
+    if (supply->getStatus() != "pending")
+        throw std::invalid_argument("Принять можно только поставку со статусом pending");
+
+    supplyRepo.acceptSupply(supply_id, accepted_by);
+
+    audit.log("shipment", supply_id, "receive", "");
+}
+
+void WarehouseService::rejectSupply(int supply_id, const std::string& reason) {
+    const auto supply = supplyRepo.getSupplyById(supply_id);
+
+    if (!supply)
+        throw std::runtime_error("Поставка с id " + std::to_string(supply_id) + "не найдена");
+
+    if (supply->getStatus() != "pending")
+        throw std::invalid_argument("Отклонить можно только поставку со статусом pending");
+
+    supplyRepo.rejectSupply(supply_id);
+
+    const std::string details = R"({"reason": ")" + escapeJson(reason) + R"("})";
+    audit.log("shipment", supply_id, "update", details);
+}
+
+int WarehouseService::createSupply(int supplier_id) {
+    if (!supplierRepo.getById(supplier_id)) {
+        throw std::runtime_error("Поставщик с id " + std::to_string(supplier_id) + " не найден");
+    }
+    return supplyRepo.createSupply(supplier_id);
+}
+
+void WarehouseService::addSupplyPart(int supply_id, int product_id, int quantity) {
+    if (quantity <= 0) {
+        throw std::invalid_argument("Количество должно быть больше нуля");
+    }
+
+    const auto supply = supplyRepo.getSupplyById(supply_id);
+
+    if (!supply) {
+        throw std::runtime_error("Поставка с id " + std::to_string(supply_id) + "не найдена");
+    }
+    if (supply->getStatus() != "pending") {
+        throw std::invalid_argument("Добавлять товары можно только в поставку со статусом pending");
+    }
+
+    if (!productRepo.getProductById(product_id)) {
+        throw std::runtime_error("Товар с id " + std::to_string(product_id) + " не найден");
+    }
+
+    supplyRepo.addSupplyPart(supply_id, product_id, quantity);
+}
+
 std::string WarehouseService::zoneNameForType(const std::string& product_type) {
     if (product_type == "regular") return "Обычная";
     if (product_type == "perishable") return "Холодная";
     if (product_type == "oversized") return "Крупногабаритная";
     throw std::invalid_argument("Неизвестный тип товара: " + product_type);
+}
+
+std::string WarehouseService::escapeJson(const std::string& s) {
+    std::string out;
+    for (char c : s) {
+        if (c == '"' || c == '\\') out.push_back('\\');
+        out.push_back(c);
+    }
+    return out;
 }

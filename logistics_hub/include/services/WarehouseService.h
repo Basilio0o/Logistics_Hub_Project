@@ -28,7 +28,7 @@ class WarehouseService {
 
     // RECEIVER
     PlacementResult placeProduct(int product_id, int quantity);
-    void acceptSupply(int supply_id);
+    void acceptSupply(int supply_id, int accepted_by);
     std::vector<Supply> getPendingSupplies();
     std::vector<SupplyPart> getSupplyParts(int supply_id);
 
@@ -64,4 +64,5 @@ class WarehouseService {
     AuditService audit;
 
     static std::string zoneNameForType(const std::string& product_type);
+    static std::string escapeJson(const std::string& s);
 };
