@@ -80,6 +80,14 @@ void WarehouseService::acceptSupply(int supply_id, int accepted_by) {
     audit.log("shipment", supply_id, "receive", "");
 }
 
+std::vector<Supply> WarehouseService::getPendingSupplies() {
+    return supplyRepo.getPendingSupplies();
+}
+
+std::vector<SupplyPart> WarehouseService::getSupplyParts(int supply_id) {
+    return supplyRepo.getSupplyParts(supply_id);
+}
+
 int WarehouseService::createSupply(int supplier_id) {
     if (!supplierRepo.getById(supplier_id)) {
         throw std::runtime_error("Поставщик с id " + std::to_string(supplier_id) + " не найден");
@@ -123,6 +131,10 @@ void WarehouseService::rejectSupply(int supply_id, const std::string& reason) {
     audit.log("shipment", supply_id, "update", details);
 }
 
+std::optional<Supply> WarehouseService::getSupplyById(int supply_id) {
+    return supplyRepo.getSupplyById(supply_id);
+}
+
 int WarehouseService::createSupplier(const std::string& name,
                                      const std::optional<std::string>& phone,
                                      const std::optional<std::string>& address) {
@@ -145,6 +157,10 @@ void WarehouseService::updateSupplier(int id, const std::string& name,
     supplierRepo.updateSupplier(id, name, phone, address);
 
     audit.log("supplier", id, "update", "");
+}
+
+std::vector<Supplier> WarehouseService::getAllSuppliers() {
+    return supplierRepo.getAll();
 }
 
 int WarehouseService::createProduct(const std::string& name, int supplier_id,
@@ -195,6 +211,14 @@ void WarehouseService::updateProduct(int id, const std::string& name, int suppli
                               shelf_life_days);
 
     audit.log("item", id, "update", "");
+}
+
+std::vector<Product> WarehouseService::getAllProducts() {
+    return productRepo.getAllProducts();
+}
+
+std::optional<Product> WarehouseService::getProductById(int id) {
+    return productRepo.getProductById(id);
 }
 
 std::string WarehouseService::zoneNameForType(const std::string& product_type) {
