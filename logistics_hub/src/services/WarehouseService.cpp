@@ -130,7 +130,7 @@ int WarehouseService::createSupplier(const std::string& name,
 
     int id = supplierRepo.createSupplier(name, phone, address);
 
-    audit.log("item", id, "update", "");
+    audit.log("supplier", id, "update", "");
     return id;
 }
 
@@ -144,7 +144,7 @@ void WarehouseService::updateSupplier(int id, const std::string& name,
 
     supplierRepo.updateSupplier(id, name, phone, address);
 
-    audit.log("item", id, "update", "");
+    audit.log("supplier", id, "update", "");
 }
 
 int WarehouseService::createProduct(const std::string& name, int supplier_id,
