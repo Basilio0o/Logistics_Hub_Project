@@ -41,10 +41,10 @@ class WarehouseService {
     // std::string& reason);
 
     // ADMIN
-    int createSupplier(const std::string& name, const std::string& phone,
-                       const std::string& address);
-    void updateSupplier(int id, const std::string& name, const std::string& phone,
-                        const std::string& address);
+    int createSupplier(const std::string& name, const std::optional<std::string>& phone,
+                       const std::optional<std::string>& address);
+    void updateSupplier(int id, const std::string& name, const std::optional<std::string>& phone,
+                        const std::optional<std::string>& address);
     std::vector<Supplier> getAllSuppliers();
     int createProduct(const std::string& name, int supplier_id, const std::string& type,
                       double unit_weight, double unit_volume, double unit_price,

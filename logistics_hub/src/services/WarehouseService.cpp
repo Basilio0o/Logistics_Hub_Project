@@ -70,7 +70,7 @@ void WarehouseService::acceptSupply(int supply_id, int accepted_by) {
     const auto supply = supplyRepo.getSupplyById(supply_id);
 
     if (!supply)
-        throw std::runtime_error("Поставка с id " + std::to_string(supply_id) + "не найдена");
+        throw std::runtime_error("Поставка с id " + std::to_string(supply_id) + " не найдена");
 
     if (supply->getStatus() != "pending")
         throw std::invalid_argument("Принять можно только поставку со статусом pending");
@@ -78,21 +78,6 @@ void WarehouseService::acceptSupply(int supply_id, int accepted_by) {
     supplyRepo.acceptSupply(supply_id, accepted_by);
 
     audit.log("shipment", supply_id, "receive", "");
-}
-
-void WarehouseService::rejectSupply(int supply_id, const std::string& reason) {
-    const auto supply = supplyRepo.getSupplyById(supply_id);
-
-    if (!supply)
-        throw std::runtime_error("Поставка с id " + std::to_string(supply_id) + "не найдена");
-
-    if (supply->getStatus() != "pending")
-        throw std::invalid_argument("Отклонить можно только поставку со статусом pending");
-
-    supplyRepo.rejectSupply(supply_id);
-
-    const std::string details = R"({"reason": ")" + escapeJson(reason) + R"("})";
-    audit.log("shipment", supply_id, "update", details);
 }
 
 int WarehouseService::createSupply(int supplier_id) {
@@ -110,7 +95,7 @@ void WarehouseService::addSupplyPart(int supply_id, int product_id, int quantity
     const auto supply = supplyRepo.getSupplyById(supply_id);
 
     if (!supply) {
-        throw std::runtime_error("Поставка с id " + std::to_string(supply_id) + "не найдена");
+        throw std::runtime_error("Поставка с id " + std::to_string(supply_id) + " не найдена");
     }
     if (supply->getStatus() != "pending") {
         throw std::invalid_argument("Добавлять товары можно только в поставку со статусом pending");
@@ -121,6 +106,95 @@ void WarehouseService::addSupplyPart(int supply_id, int product_id, int quantity
     }
 
     supplyRepo.addSupplyPart(supply_id, product_id, quantity);
+}
+
+void WarehouseService::rejectSupply(int supply_id, const std::string& reason) {
+    const auto supply = supplyRepo.getSupplyById(supply_id);
+
+    if (!supply)
+        throw std::runtime_error("Поставка с id " + std::to_string(supply_id) + " не найдена");
+
+    if (supply->getStatus() != "pending")
+        throw std::invalid_argument("Отклонить можно только поставку со статусом pending");
+
+    supplyRepo.rejectSupply(supply_id);
+
+    const std::string details = R"({"reason": ")" + escapeJson(reason) + R"("})";
+    audit.log("shipment", supply_id, "update", details);
+}
+
+int WarehouseService::createSupplier(const std::string& name,
+                                     const std::optional<std::string>& phone,
+                                     const std::optional<std::string>& address) {
+    if (name.empty()) throw std::invalid_argument("Название поставщика не может быть пустым");
+
+    int id = supplierRepo.createSupplier(name, phone, address);
+
+    audit.log("item", id, "update", "");
+    return id;
+}
+
+void WarehouseService::updateSupplier(int id, const std::string& name,
+                                      const std::optional<std::string>& phone,
+                                      const std::optional<std::string>& address) {
+    if (!supplierRepo.getById(id))
+        throw std::runtime_error("Поставщик с id " + std::to_string(id) + " не найден");
+
+    if (name.empty()) throw std::invalid_argument("Название поставщика не может быть пустым");
+
+    supplierRepo.updateSupplier(id, name, phone, address);
+
+    audit.log("item", id, "update", "");
+}
+
+int WarehouseService::createProduct(const std::string& name, int supplier_id,
+                                    const std::string& type, double unit_weight, double unit_volume,
+                                    double unit_price, std::optional<int> shelf_life_days) {
+    if (name.empty()) throw std::invalid_argument("Название товара не может быть пустым");
+
+    if (!supplierRepo.getById(supplier_id))
+        throw std::runtime_error("Поставщик с id " + std::to_string(supplier_id) + " не найден");
+
+    zoneNameForType(type);
+
+    if (unit_weight <= 0 || unit_volume <= 0 || unit_price <= 0)
+        throw std::invalid_argument("Вес, объём и цена должны быть > 0");
+
+    if (shelf_life_days.has_value() && *shelf_life_days <= 0)
+        throw std::invalid_argument("Срок годности должен быть > 0");
+
+    int id = productRepo.createProduct(name, supplier_id, type, unit_weight, unit_volume,
+                                       unit_price, shelf_life_days);
+
+    audit.log("item", id, "update", "");
+
+    return id;
+}
+
+void WarehouseService::updateProduct(int id, const std::string& name, int supplier_id,
+                                     const std::string& type, double unit_weight,
+                                     double unit_volume, double unit_price,
+                                     std::optional<int> shelf_life_days) {
+    if (!productRepo.getProductById(id))
+        throw std::runtime_error("Товар с id " + std::to_string(id) + " не найден");
+
+    if (name.empty()) throw std::invalid_argument("Название товара не может быть пустым");
+
+    if (!supplierRepo.getById(supplier_id))
+        throw std::runtime_error("Поставщик с id " + std::to_string(supplier_id) + " не найден");
+
+    zoneNameForType(type);
+
+    if (unit_weight <= 0 || unit_volume <= 0 || unit_price <= 0)
+        throw std::invalid_argument("Вес, объём и цена должны быть > 0");
+
+    if (shelf_life_days.has_value() && *shelf_life_days <= 0)
+        throw std::invalid_argument("Срок годности должен быть > 0");
+
+    productRepo.updateProduct(id, name, supplier_id, type, unit_weight, unit_volume, unit_price,
+                              shelf_life_days);
+
+    audit.log("item", id, "update", "");
 }
 
 std::string WarehouseService::zoneNameForType(const std::string& product_type) {
