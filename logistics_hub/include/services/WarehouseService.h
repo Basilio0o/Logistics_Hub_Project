@@ -28,6 +28,7 @@ class WarehouseService {
 
     // RECEIVER
     PlacementResult placeProduct(int product_id, int quantity);
+    PlacementResult placeSupplyProduct(int supply_id, int product_id, int quantity);
     void acceptSupply(int supply_id, int accepted_by);
     std::vector<Supply> getPendingSupplies();
     std::vector<SupplyPart> getSupplyParts(int supply_id);

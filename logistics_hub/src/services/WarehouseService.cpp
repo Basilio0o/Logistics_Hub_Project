@@ -66,6 +66,29 @@ PlacementResult WarehouseService::placeProduct(int product_id, int quantity) {
     return result;
 }
 
+PlacementResult WarehouseService::placeSupplyProduct(int supply_id, int product_id, int quantity) {
+    const auto supply = supplyRepo.getSupplyById(supply_id);
+
+    if (!supply) {
+        throw std::runtime_error("Поставка с id " + std::to_string(supply_id) + " не найдена");
+    }
+    if (supply->getStatus() != "pending") {
+        throw std::invalid_argument("Принимать можно только поставку в статусе pending");
+    }
+
+    const auto parts = supplyRepo.getSupplyParts(supply_id);
+
+    const bool inSupply =
+        std::any_of(parts.begin(), parts.end(),
+                    [product_id](const SupplyPart& p) { return p.getProductId() == product_id; });
+    if (!inSupply) {
+        throw std::invalid_argument("Товар с id " + std::to_string(product_id) +
+                                    " не входит в данную поставку");
+    }
+
+    return placeProduct(product_id, quantity);
+}
+
 void WarehouseService::acceptSupply(int supply_id, int accepted_by) {
     const auto supply = supplyRepo.getSupplyById(supply_id);
 
