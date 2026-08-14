@@ -64,9 +64,16 @@ std::optional<Product> ProductRepository::getProductById(int id) {
 
 std::vector<ShelfProduct> ProductRepository::getShelfProductsByProductId(int product_id) {
     auto result = db.query_params(
-        "SELECT shelf_id, product_id, quantity, received_at FROM shelf_products WHERE product_id = "
-        "$1 and quantity > 0 ORDER BY received_at ASC",
+        "SELECT sp.shelf_id, sp.product_id, sp.quantity, sp.received_at "
+        "FROM shelf_products sp "
+        "JOIN products p ON p.id = sp.product_id "
+        "WHERE sp.product_id = $1 "
+        "  AND sp.quantity > 0 "
+        "  AND (p.shelf_life_days IS NULL "
+        "       OR sp.received_at + make_interval(days => p.shelf_life_days) > NOW()) "
+        "ORDER BY sp.received_at ASC",
         product_id);
+
     std::vector<ShelfProduct> shelfProducts;
     shelfProducts.reserve(result.size());
 
