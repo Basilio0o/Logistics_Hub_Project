@@ -419,7 +419,7 @@ logistics_hub/
 | | | - WarehouseRepository.h
 | | - services/
 | | | - WarehouseService.h
-| | | - DeliveryService.h
+| | | - DistrictService.h
 | | | - OrderService.h
 | | | - ParcelService.h
 | | | - VehicleService.h
@@ -473,7 +473,7 @@ logistics_hub/
 | | | - WarehouseRepository.cpp
 | | - services/
 | | | - WarehouseService.cpp
-| | | - DeliveryService.cpp
+| | | - DistrictService.cpp
 | | | - OrderService.cpp
 | | | - ParcelService.cpp
 | | | - VehicleService.cpp
@@ -499,7 +499,7 @@ Logistics_Hub_Project/
 | - tests/
 | | - services/
 | | | - test_WarehouseService.cpp
-| | | - test_DeliveryService.cpp
+| | | - test_DistrictService.cpp
 | | | - test_OrderService.cpp
 | | | - test_ParcelService.cpp
 | | | - test_VehicleService.cpp
