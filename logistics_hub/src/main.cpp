@@ -2,6 +2,8 @@
 
 #include "dal/Db.h"
 #include "services/AuditService.h"
+#include "services/OrderService.h"
+#include "services/ParcelService.h"
 #include "services/UserService.h"
 #include "services/WarehouseService.h"
 
@@ -13,6 +15,8 @@ int main() {
         UserService userService(db);
         AuditService audit(db);
         WarehouseService warehouseService(db);
+        ParcelService parcelService(db);
+        OrderService orderService(db);
 
         // try {
         //     std::cout << "created id=" << userService.createUser("tester", "1234", "receiver")
@@ -54,6 +58,22 @@ int main() {
         //           << product2.placed << ", " << product2.remaining << std::endl;
 
         // warehouseService.acceptSupply(id, user->getId());
+
+        // orderService.startProcessing(1);
+
+        // int id = parcelService.createParcelFromOrder(1, "standard");
+
+        // auto parts = parcelService.getParcelParts(id);
+
+        // for (const auto& part : parts) {
+        //     std::cout << "Product_id : " << part.getProductId()
+        //               << ", quantity : " << part.getQuantity() << std::endl;
+        // }
+
+        // auto parcel = parcelService.assembleParcel(id, user->getId());
+
+        // std::cout << "Посылка создана, вес - " << parcel.getWeight() << ", объём - "
+        //           << parcel.getVolume() << std::endl;
 
     } catch (const std::exception& e) {
         std::cerr << "Error:" << e.what() << std::endl;
