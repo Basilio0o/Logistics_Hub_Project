@@ -132,7 +132,7 @@
 
 ### Журнал аудита
 - ID
-- Тип сущности: shipment, supplier, order, parcel, item, cell
+- Тип сущности: shipment, supplier, order, parcel, item, cell, vehicle
 - ID сущности
 - Операция: receive, assemble, dispatch, move, update, delete
 - Кто выполнил (ссылка на пользователя)
@@ -283,7 +283,7 @@
 
 ### Журнал аудита
 - ID (INT, PK)
-- Тип сущности (VARCHAR(50), NOT NULL): shipment, supplier, order, parcel, item, cell
+- Тип сущности (VARCHAR(50), NOT NULL): shipment, supplier, order, parcel, item, cell, vehicle
 - ID сущности (INT, NOT NULL)
 - Операция (VARCHAR(50), NOT NULL): receive, assemble, dispatch, move, update, delete
 - Кто выполнил (ссылка на Пользователя)
