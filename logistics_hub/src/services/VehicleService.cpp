@@ -103,12 +103,58 @@ void VehicleService::completeRoute(int vehicle_id) {
     audit.log("vehicle", vehicle_id, "update", "");
 }
 
+std::vector<Vehicle> VehicleService::getVehiclesByStatus(const std::string& status) {
+    if (!isValidStatus(status))
+        throw std::invalid_argument("Неверный статус машины: '" + status + "'");
+    return vehiclerepo.getVehiclesByStatus(status);
+}
+
+std::optional<Vehicle> VehicleService::getVehicleById(int id) {
+    return vehiclerepo.getVehicleById(id);
+}
+
+void VehicleService::assignDistrict(int vehicle_id, int district_id) {
+    auto vehicle = vehiclerepo.getVehicleById(vehicle_id);
+    if (!vehicle)
+        throw std::runtime_error("Машина с id = " + std::to_string(vehicle_id) + " не найдена");
+
+    if (vehicle->getStatus() == "on_route")
+        throw std::invalid_argument("Нельзя назначить район машине в рейсе");
+
+    if (!districtrepo.getById(district_id))
+        throw std::runtime_error("Район с id = " + std::to_string(district_id) + " не найден");
+
+    vehiclerepo.assignDistrict(vehicle_id, district_id);
+}
+
+void VehicleService::unassignDistrict(int vehicle_id, int district_id) {
+    auto vehicle = vehiclerepo.getVehicleById(vehicle_id);
+    if (!vehicle)
+        throw std::runtime_error("Машина с id = " + std::to_string(vehicle_id) + " не найдена");
+
+    if (vehicle->getStatus() == "on_route")
+        throw std::invalid_argument("Нельзя снять район с машины в рейсе");
+
+    if (!districtrepo.getById(district_id))
+        throw std::runtime_error("Район с id = " + std::to_string(district_id) + " не найден");
+
+    vehiclerepo.unassignDistrict(vehicle_id, district_id);
+}
+
+std::vector<District> VehicleService::getVehicleDistricts(int vehicle_id) {
+    return vehiclerepo.getVehicleDistricts(vehicle_id);
+}
+
 int VehicleService::priorityToInt(const std::string& p) {
     if (p == "urgent") return 4;
     if (p == "high") return 3;
     if (p == "normal") return 2;
     if (p == "low") return 1;
     return 0;
+}
+
+bool VehicleService::isValidStatus(const std::string& s) {
+    return s == "available" || s == "loading" || s == "on_route" || s == "off_duty";
 }
 
 std::optional<int> VehicleService::getMinShelfLife(const Parcel& parcel) {
