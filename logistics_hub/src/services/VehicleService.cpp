@@ -64,10 +64,43 @@ std::vector<Parcel> VehicleService::loadVehicle(int vehicle_id, int user_id) {
         }
     }
 
-    auditservice.log("vehicle", vehicle_id, "update",
-                     "Загружено посылок: " + std::to_string(loaded_ids.size()));
+    std::string details_json = R"({"loaded_parcels": )" + std::to_string(loaded_ids.size()) + "}";
+    audit.log("vehicle", vehicle_id, "update", details_json);
 
     return loaded_ids;
+}
+
+void VehicleService::dispatchVehicle(int vehicle_id, int user_id) {
+    auto vehicle = vehiclerepo.getVehicleById(vehicle_id);
+
+    if (!vehicle)
+        throw std::runtime_error("Машина с id = " + std::to_string(vehicle_id) + " не найдена");
+
+    if (vehicle->getStatus() != "loading")
+        throw std::invalid_argument("Нельзя отправить в рейс машину со статусом '" +
+                                    vehicle->getStatus() + "'");
+
+    if (vehicle->getCurrentParcels() == 0)
+        throw std::invalid_argument("Нельзя отправить пустую машину");
+
+    vehiclerepo.sendOnRoute(vehicle_id, user_id);
+
+    audit.log("vehicle", vehicle_id, "dispatch", "");
+}
+
+void VehicleService::completeRoute(int vehicle_id) {
+    auto vehicle = vehiclerepo.getVehicleById(vehicle_id);
+
+    if (!vehicle)
+        throw std::runtime_error("Машина с id = " + std::to_string(vehicle_id) + " не найдена");
+
+    if (vehicle->getStatus() != "on_route")
+        throw std::invalid_argument("Нельзя завершить поездку машины со статусом '" +
+                                    vehicle->getStatus() + "'");
+
+    vehiclerepo.completeRoute(vehicle_id);
+
+    audit.log("vehicle", vehicle_id, "update", "");
 }
 
 int VehicleService::priorityToInt(const std::string& p) {

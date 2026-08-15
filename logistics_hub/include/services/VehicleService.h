@@ -16,8 +16,7 @@
 
 class VehicleService {
    public:
-    explicit VehicleService(Db& db)
-        : vehiclerepo(db), parcelrepo(db), productrepo(db), auditservice(db) {}
+    explicit VehicleService(Db& db) : vehiclerepo(db), parcelrepo(db), productrepo(db), audit(db) {}
 
     // MANAGER
     std::vector<Parcel> loadVehicle(int vehicle_id, int user_id);
@@ -36,7 +35,7 @@ class VehicleService {
     VehicleRepository vehiclerepo;
     ParcelRepository parcelrepo;
     ProductRepository productrepo;
-    AuditService auditservice;
+    AuditService audit;
 
     static int priorityToInt(const std::string& p);
     std::optional<int> getMinShelfLife(const Parcel& parcel);
