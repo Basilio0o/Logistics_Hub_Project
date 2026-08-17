@@ -15,10 +15,11 @@ int ReceiverMenu::run() {
             std::cout << "[Активная поставка: #" << current_supply_id << "]\n";
         }
         std::cout << "1. Выбрать поставку для приёмки\n";
-        std::cout << "2. Приёмка товара\n";
-        std::cout << "3. Завершение поставки\n";
-        std::cout << "4. Выйти (сменить аккаунт)\n";
-        std::cout << "5. Выйти из приложения\n";
+        std::cout << "2. Вывести список товаров в поставке\n";
+        std::cout << "3. Приёмка товара\n";
+        std::cout << "4. Завершение поставки\n";
+        std::cout << "5. Выйти (сменить аккаунт)\n";
+        std::cout << "6. Выйти из приложения\n";
         std::cout << "Выбор: ";
 
         int choice = 0;
@@ -35,19 +36,22 @@ int ReceiverMenu::run() {
                     selectSupply();
                     break;
                 case 2:
-                    receiveProduct();
+                    showSupplyComposition();
                     break;
                 case 3:
-                    finishSupply();
+                    receiveProduct();
                     break;
                 case 4:
+                    finishSupply();
+                    break;
+                case 5:
                     if (current_supply_id != -1) {
                         std::cout << "Завершите активную поставку перед выходом\n";
                     } else {
                         return 1;
                     }
                     break;
-                case 5:
+                case 6:
                     if (current_supply_id != -1) {
                         std::cout << "Завершите активную поставку перед выходом\n";
                     } else {
