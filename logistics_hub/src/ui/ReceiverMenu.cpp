@@ -96,8 +96,9 @@ void ReceiverMenu::selectSupply() {
     if (id == 0) return;
 
     auto parts = warehouseService.getSupplyParts(id);
-    if (parts.empty()) {
-        std::cout << "Поставка #" << id << " не найдена или не имеет состава\n";
+    if (parts.empty() || warehouseService.getSupplyById(id)->getStatus() != "pending") {
+        std::cout << "Поставка #" << id
+                  << " не найдена, или не имеет состава, или не имеет статуса 'pending'\n";
         return;
     }
 
@@ -123,7 +124,7 @@ void ReceiverMenu::showSupplyComposition() {
     for (const auto& [product_id, ep] : session) {
         int diff = ep.placed - ep.expected;
         std::cout << std::left << std::setw(11) << product_id << "| " << std::setw(10)
-                  << ep.expected << "| " << std::setw(10) << ep.placed << "| " << std::setw(7)
+                  << ep.expected << "| " << std::setw(10) << ep.placed << "| "
                   << (diff > 0 ? "+" : "") << std::setw(7) << diff << "\n";
     }
 }
