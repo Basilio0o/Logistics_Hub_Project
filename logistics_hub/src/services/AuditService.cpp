@@ -36,8 +36,8 @@ bool AuditService::isValidEntityType(const std::string& type) {
 }
 
 bool AuditService::isValidOperation(const std::string& op) {
-    if (op != "receive" && op != "assemble" && op != " dispatch " && op != " move " &&
-        op != "update" && op != "delete")
+    if (op != "receive" && op != "assemble" && op != "dispatch" && op != "move" && op != "update" &&
+        op != "delete")
         return false;
     return true;
 }
