@@ -1,6 +1,6 @@
 INSERT INTO users (login, pass_hash, role) VALUES
     ('admin', 'admin123', 'admin'),
-    ('receiver1', 'recv123', 'receiver')
+    ('receiver_test', 'receiver_test_1234', 'receiver')
 ON CONFLICT (login) DO NOTHING;
 
 INSERT INTO districts (name) VALUES
