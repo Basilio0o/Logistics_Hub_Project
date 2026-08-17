@@ -30,7 +30,7 @@ std::vector<AuditLog> AuditService::getLogs(std::optional<int> user_id,
 
 bool AuditService::isValidEntityType(const std::string& type) {
     if (type != "shipment" && type != "supplier" && type != "order" && type != "parcel" &&
-        type != "item" && type != "cell" && type != "vehicle")
+        type != "item" && type != "cell" && type != "vehicle" && type != "district")
         return false;
     return true;
 }

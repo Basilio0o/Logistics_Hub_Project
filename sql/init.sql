@@ -182,7 +182,7 @@ CREATE TABLE IF NOT EXISTS parcel_history (
 CREATE TABLE IF NOT EXISTS audit_logs (
     id           SERIAL PRIMARY KEY,
     entity_type  VARCHAR(50) NOT NULL
-                 CHECK (entity_type IN ('shipment', 'supplier', 'order', 'parcel', 'item', 'cell', 'vehicle')),
+                 CHECK (entity_type IN ('shipment', 'supplier', 'order', 'parcel', 'item', 'cell', 'vehicle', 'district')),
     entity_id    INT NOT NULL,
     operation    VARCHAR(50) NOT NULL
                  CHECK (operation IN ('receive', 'assemble', 'dispatch',
