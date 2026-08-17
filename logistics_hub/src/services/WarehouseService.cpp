@@ -89,7 +89,7 @@ PlacementResult WarehouseService::placeSupplyProduct(int supply_id, int product_
     return placeProduct(product_id, quantity);
 }
 
-void WarehouseService::acceptSupply(int supply_id, int accepted_by) {
+void WarehouseService::acceptSupply(int supply_id, int accepted_by, const std::string& details) {
     const auto supply = supplyRepo.getSupplyById(supply_id);
 
     if (!supply)
@@ -98,9 +98,8 @@ void WarehouseService::acceptSupply(int supply_id, int accepted_by) {
     if (supply->getStatus() != "pending")
         throw std::invalid_argument("Принять можно только поставку со статусом pending");
 
+    audit.log("shipment", supply_id, "receive", details);
     supplyRepo.acceptSupply(supply_id, accepted_by);
-
-    audit.log("shipment", supply_id, "receive", "");
 }
 
 std::vector<Supply> WarehouseService::getPendingSupplies() {
