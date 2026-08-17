@@ -13,6 +13,7 @@ class DistrictRepository {
 
     std::vector<District> getAll();
     std::optional<District> getById(int id);
+    std::optional<District> getDistrictByName(const std::string& name);
 
    private:
     Db& db;

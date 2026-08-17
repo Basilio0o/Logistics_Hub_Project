@@ -31,6 +31,16 @@ std::optional<District> DistrictRepository::getById(int id) {
     return mapRow(result[0]);
 }
 
+std::optional<District> DistrictRepository::getDistrictByName(const std::string& name) {
+    std::string sql = "SELECT id, name FROM districts WHERE name = $1";
+    auto result = db.query_params(sql, name);
+
+    if (result.empty()) {
+        return std::nullopt;
+    }
+    return mapRow(result[0]);
+}
+
 District DistrictRepository::mapRow(const pqxx::row& row) {
     return District(row["id"].as<int>(), row["name"].as<std::string>());
 }
