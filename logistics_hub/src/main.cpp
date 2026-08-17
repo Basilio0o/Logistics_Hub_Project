@@ -19,28 +19,19 @@ int main() {
             std::cout << "Пароль: ";
             std::cin >> password;
 
-            int choice = -1;
-
             auto user = userService.login(login, password);
             if (!user) {
                 std::cout << "Неверный логин или пароль\n";
-                std::cout
-                    << "Нажмите enter, если хотите повторить попытку. Введите 0, чтобы выйти\n";
+                std::cout << "Нажмите enter, если хотите повторить попытку. Введите 0, "
+                             "чтобы выйти\n";
                 std::cout << "Ваш ввод: ";
 
-                std::cin >> choice;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-                if (choice == 0) {
-                    return 0;
-                }
+                std::string line;
+                std::getline(std::cin, line);
+                if (line == "0") return 0;
                 continue;
-
-                if (!(std::cin >> choice)) {
-                    std::cin.clear();
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                    std::cout << "Некорректный ввод\n";
-                    continue;
-                }
             }
 
             int exitCode = 0;
