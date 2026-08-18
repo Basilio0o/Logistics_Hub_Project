@@ -23,6 +23,7 @@ class OrderService {
 
     std::vector<Order> getOrdersByStatus(const std::string& status);
     std::vector<OrderPart> getOrderParts(int order_id);
+    std::optional<Order> getOrderById(int order_id);
 
    private:
     OrderRepository orderRepo;

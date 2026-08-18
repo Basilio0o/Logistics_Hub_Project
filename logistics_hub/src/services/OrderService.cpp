@@ -66,6 +66,13 @@ std::vector<OrderPart> OrderService::getOrderParts(int order_id) {
     return orderRepo.getOrderParts(order_id);
 }
 
+std::optional<Order> OrderService::getOrderById(int order_id) {
+    if (!orderRepo.getOrderById(order_id))
+        throw std::runtime_error("Заказ с id " + std::to_string(order_id) + " не найден");
+
+    return orderRepo.getOrderById(order_id);
+}
+
 void OrderService::isValidPriority(const std::string& p) {
     if (p != "low" && p != "normal" && p != "high" && p != "urgent")
         throw std::invalid_argument(
