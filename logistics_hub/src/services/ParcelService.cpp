@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-int ParcelService::createParcelFromOrder(int order_id, const std::string& type) {
+int ParcelService::createParcelFromOrder(int order_id) {
     const auto order = orderRepo.getOrderById(order_id);
 
     if (!order) throw std::runtime_error("Заказ с id " + std::to_string(order_id) + " не найден");
@@ -10,12 +10,26 @@ int ParcelService::createParcelFromOrder(int order_id, const std::string& type) 
     if (order->getStatus() != "processing")
         throw std::invalid_argument("Можно собрать заказ только со статусом 'processing'");
 
-    isValidType(type);
-
-    int parcel_id =
-        parcelRepo.createParcel(order_id, order->getDistrictId(), type, order->getPriority());
-
     std::vector<OrderPart> order_items = orderRepo.getOrderParts(order_id);
+    if (order_items.empty()) throw std::invalid_argument("Заказ пуст");
+
+    std::string parcel_type = "standard";
+
+    for (const auto& item : order_items) {
+        auto product = productRepo.getProductById(item.getProductId());
+        if (!product) continue;
+
+        if (product->getType() == "perishable") {
+            parcel_type = "express";
+            break;
+        } else if (product->getType() == "oversized") {
+            parcel_type = "oversized";
+        }
+    }
+
+    int parcel_id = parcelRepo.createParcel(order_id, order->getDistrictId(), parcel_type,
+                                            order->getPriority());
+
     for (const auto& item : order_items) {
         parcelRepo.addParcelPart(parcel_id, item.getProductId(), item.getQuantity());
     }
@@ -122,11 +136,6 @@ void ParcelService::isValidPriority(const std::string& p) {
     if (p != "low" && p != "normal" && p != "high" && p != "urgent")
         throw std::invalid_argument(
             "Приоритет может быть только: 'low', 'normal', 'high', 'urgent'");
-}
-
-void ParcelService::isValidType(const std::string& t) {
-    if (t != "standard" && t != "express" && t != "oversized")
-        throw std::invalid_argument("Тип может быть только: 'standard', 'express', 'oversized'");
 }
 
 void ParcelService::isValidStatus(const std::string& s) {

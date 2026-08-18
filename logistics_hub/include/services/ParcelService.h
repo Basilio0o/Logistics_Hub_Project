@@ -20,7 +20,7 @@ class ParcelService {
         : parcelRepo(db), productRepo(db), orderRepo(db), districtRepo(db), audit(db) {}
 
     // MANAGER
-    int createParcelFromOrder(int order_id, const std::string& type);
+    int createParcelFromOrder(int order_id);
 
     // ASSEMBLER
     Parcel assembleParcel(int parcel_id, int user_id);
@@ -37,6 +37,5 @@ class ParcelService {
     AuditService audit;
 
     static void isValidPriority(const std::string& p);
-    static void isValidType(const std::string& t);
     static void isValidStatus(const std::string& s);
 };
