@@ -4,6 +4,7 @@
 
 #include "dal/Db.h"
 #include "services/UserService.h"
+#include "ui/AssemblerMenu.h"
 #include "ui/ReceiverMenu.h"
 
 int main() {
@@ -38,11 +39,21 @@ int main() {
             std::string role = user->getRole();
 
             if (role == "receiver") {
-                std::cout << "\nДобро пожаловать!\n";
+                std::cout << "\nДобро пожаловать, " << user->getLogin() << std::endl;
                 ReceiverMenu menu(db, user->getId());
                 exitCode = menu.run();
+            } else if (role == "assembler") {
+                std::cout << "\nДобро пожаловать, " << user->getLogin() << std::endl;
+                AssemblerMenu menu(db, user->getId());
+                exitCode = menu.run();
+            } else if (role == "manager") {
+                std::cout << "\nМеню менеджера в разработке\n";
+                exitCode = 1;
+            } else if (role == "admin") {
+                std::cout << "\nМеню администратора в разработке\n";
+                exitCode = 1;
             } else {
-                std::cout << "Меню для роли '" << role << "' в разработке\n";
+                std::cout << "Неизвестная роль: " << role << "\n";
                 exitCode = 1;
             }
 
