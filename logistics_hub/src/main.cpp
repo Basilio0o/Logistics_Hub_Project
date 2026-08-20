@@ -5,6 +5,7 @@
 #include "dal/Db.h"
 #include "services/UserService.h"
 #include "ui/AssemblerMenu.h"
+#include "ui/ManagerMenu.h"
 #include "ui/ReceiverMenu.h"
 
 int main() {
@@ -47,8 +48,9 @@ int main() {
                 AssemblerMenu menu(db, user->getId());
                 exitCode = menu.run();
             } else if (role == "manager") {
-                std::cout << "\nМеню менеджера в разработке\n";
-                exitCode = 1;
+                std::cout << "\nДобро пожаловать, " << user->getLogin() << std::endl;
+                ManagerMenu menu(db, user->getId());
+                exitCode = menu.run();
             } else if (role == "admin") {
                 std::cout << "\nМеню администратора в разработке\n";
                 exitCode = 1;
