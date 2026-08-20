@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS zones (
     id             SERIAL PRIMARY KEY,
     warehouse_id   INT NOT NULL REFERENCES warehouses(id),
     name           VARCHAR(50) NOT NULL
-                   CHECK (name IN ('Обычная', 'Холодная', 'Крупногабаритная')),
+                   CHECK (name IN ('regular', 'cold', 'oversized')),
     code           VARCHAR(10) NOT NULL,
     max_weight     NUMERIC(10,3),
     max_volume     NUMERIC(10,3),
