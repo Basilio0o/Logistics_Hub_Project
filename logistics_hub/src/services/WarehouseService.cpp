@@ -243,6 +243,17 @@ std::optional<Product> WarehouseService::getProductById(int id) {
     return productRepo.getProductById(id);
 }
 
+std::vector<ShelfProduct> WarehouseService::getShelfProductsByProductId(int product_id) {
+    return productRepo.getShelfProductsByProductId(product_id);
+}
+
+std::optional<Shelf> WarehouseService::getShelfById(int shelf_id) {
+    auto shelf = warehouseRepo.getShelfById(shelf_id);
+    if (!shelf)
+        throw std::runtime_error("Полка с id = " + std::to_string(shelf_id) + " не найдена");
+    return shelf;
+}
+
 std::string WarehouseService::zoneNameForType(const std::string& product_type) {
     if (product_type == "regular") return "Обычная";
     if (product_type == "perishable") return "Холодная";

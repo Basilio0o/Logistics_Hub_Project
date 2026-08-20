@@ -9,6 +9,7 @@
 #include "dal/SupplyRepository.h"
 #include "dal/WarehouseRepository.h"
 #include "models/Product/Product.h"
+#include "models/Product/ShelfProduct.h"
 #include "models/Supplier.h"
 #include "models/Supply/Supply.h"
 #include "models/Supply/SupplyPart.h"
@@ -55,7 +56,8 @@ class WarehouseService {
                        std::optional<int> shelf_life_days);
     std::vector<Product> getAllProducts();
     std::optional<Product> getProductById(int id);
-    // CRUD зон/стеллажей/полок для admin-меню; статистика заполненности
+    std::vector<ShelfProduct> getShelfProductsByProductId(int product_id);
+    std::optional<Shelf> getShelfById(int shelf_id);
 
    private:
     WarehouseRepository warehouseRepo;

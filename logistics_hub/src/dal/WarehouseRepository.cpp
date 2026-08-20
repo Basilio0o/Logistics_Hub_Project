@@ -116,6 +116,12 @@ void WarehouseRepository::updateShelfStatus(int shelf_id, const std::string& sta
     db.execute_params("UPDATE shelves SET status = $2 WHERE id = $1", shelf_id, status);
 }
 
+std::optional<Shelf> WarehouseRepository::getShelfById(int shelfId) {
+    auto result = db.query_params("SELECT * FROM shelves WHERE id = $1", shelfId);
+    if (result.empty()) return std::nullopt;
+    return mapShelf(result[0]);
+}
+
 std::vector<Shelf> WarehouseRepository::getShelvesByRackId(int rackId) {
     auto result = db.query_params(
         "SELECT id, rack_id, code, max_weight, max_volume, "

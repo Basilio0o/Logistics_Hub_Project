@@ -37,6 +37,7 @@ class WarehouseRepository {
     void updateShelf(int id, const std::string& code, double max_weight, double max_volume);
     void updateShelfStatus(int shelf_id, const std::string& status);
 
+    std::optional<Shelf> getShelfById(int shelfId);
     std::vector<Shelf> getShelvesByRackId(int rackId);
     std::vector<Shelf> findActiveShelvesByZoneId(int zoneId);
 
