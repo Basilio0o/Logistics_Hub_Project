@@ -80,7 +80,7 @@ int ReceiverMenu::showPendingSupplies() {
     std::cout << "----|----------\n";
     for (const auto& s : supplies) {
         std::cout << std::left << std::setw(4) << s.getId() << "| " << std::setw(9)
-                  << s.getSupplierId() << "\n";
+                  << warehouseService.getSupplierById(s.getSupplierId())->getName() << "\n";
     }
     return 0;
 }
