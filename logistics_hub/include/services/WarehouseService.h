@@ -13,6 +13,8 @@
 #include "models/Supplier.h"
 #include "models/Supply/Supply.h"
 #include "models/Supply/SupplyPart.h"
+#include "models/Warehouse/Shelf.h"
+#include "models/Warehouse/Zone.h"
 #include "services/AuditService.h"
 
 struct PlacementResult {
@@ -48,6 +50,7 @@ class WarehouseService {
     void updateSupplier(int id, const std::string& name, const std::optional<std::string>& phone,
                         const std::optional<std::string>& address);
     std::vector<Supplier> getAllSuppliers();
+    std::optional<Supplier> getSupplierById(int supplier_id);
     int createProduct(const std::string& name, int supplier_id, const std::string& type,
                       double unit_weight, double unit_volume, double unit_price,
                       std::optional<int> shelf_life_days);
@@ -58,6 +61,7 @@ class WarehouseService {
     std::optional<Product> getProductById(int id);
     std::vector<ShelfProduct> getShelfProductsByProductId(int product_id);
     std::optional<Shelf> getShelfById(int shelf_id);
+    std::vector<Zone> getAllZones();
 
    private:
     WarehouseRepository warehouseRepo;

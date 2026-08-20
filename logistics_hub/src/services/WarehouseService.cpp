@@ -185,6 +185,14 @@ std::vector<Supplier> WarehouseService::getAllSuppliers() {
     return supplierRepo.getAll();
 }
 
+std::optional<Supplier> WarehouseService::getSupplierById(int supplier_id) {
+    auto supplier = supplierRepo.getById(supplier_id);
+
+    if (!supplier)
+        throw std::runtime_error("Поставщик с id = " + std::to_string(supplier_id) + " не найден");
+    return supplier;
+}
+
 int WarehouseService::createProduct(const std::string& name, int supplier_id,
                                     const std::string& type, double unit_weight, double unit_volume,
                                     double unit_price, std::optional<int> shelf_life_days) {
@@ -254,10 +262,14 @@ std::optional<Shelf> WarehouseService::getShelfById(int shelf_id) {
     return shelf;
 }
 
+std::vector<Zone> WarehouseService::getAllZones() {
+    return warehouseRepo.getAllZones();
+}
+
 std::string WarehouseService::zoneNameForType(const std::string& product_type) {
-    if (product_type == "regular") return "Обычная";
-    if (product_type == "perishable") return "Холодная";
-    if (product_type == "oversized") return "Крупногабаритная";
+    if (product_type == "regular") return "regular";
+    if (product_type == "perishable") return "cold";
+    if (product_type == "oversized") return "oversized";
     throw std::invalid_argument("Неизвестный тип товара: " + product_type);
 }
 
