@@ -27,11 +27,13 @@ class WarehouseRepository {
 
     std::vector<Zone> getAllZones();
     std::optional<Zone> getZoneByName(const std::string& name);
+    std::optional<Zone> getZoneById(int zone_id);
 
     int createRack(int zone_id, const std::string& code, double max_weight, double max_volume);
     void updateRack(int id, const std::string& code, double max_weight, double max_volume);
 
     std::vector<Rack> getRacksByZoneId(int zoneId);
+    std::optional<Rack> getRackById(int rack_id);
 
     int createShelf(int rack_id, const std::string& code, double max_weight, double max_volume);
     void updateShelf(int id, const std::string& code, double max_weight, double max_volume);

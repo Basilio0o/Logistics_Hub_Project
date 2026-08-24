@@ -69,17 +69,13 @@ std::optional<Zone> WarehouseRepository::getZoneByName(const std::string& name) 
     return mapZone(result[0]);
 }
 
-std::vector<Rack> WarehouseRepository::getRacksByZoneId(int zoneId) {
+std::optional<Zone> WarehouseRepository::getZoneById(int zone_id) {
     auto result = db.query_params(
-        "SELECT id, zone_id, code, max_weight, max_volume, "
-        "current_weight, current_volume FROM racks WHERE zone_id = $1",
-        zoneId);
-    std::vector<Rack> racks;
-    racks.reserve(result.size());
-    for (const auto& row : result) {
-        racks.push_back(mapRack(row));
-    }
-    return racks;
+        "SELECT id, warehouse_id, name, code, max_weight, max_volume, "
+        "current_weight, current_volume FROM zones WHERE id = $1",
+        zone_id);
+    if (result.empty()) return std::nullopt;
+    return mapZone(result[0]);
 }
 
 int WarehouseRepository::createRack(int zone_id, const std::string& code, double max_weight,
@@ -95,6 +91,28 @@ void WarehouseRepository::updateRack(int id, const std::string& code, double max
                                      double max_volume) {
     db.execute_params("UPDATE racks SET code = $2, max_weight = $3, max_volume = $4 WHERE id = $1",
                       id, code, max_weight, max_volume);
+}
+
+std::vector<Rack> WarehouseRepository::getRacksByZoneId(int zoneId) {
+    auto result = db.query_params(
+        "SELECT id, zone_id, code, max_weight, max_volume, "
+        "current_weight, current_volume FROM racks WHERE zone_id = $1",
+        zoneId);
+    std::vector<Rack> racks;
+    racks.reserve(result.size());
+    for (const auto& row : result) {
+        racks.push_back(mapRack(row));
+    }
+    return racks;
+}
+
+std::optional<Rack> WarehouseRepository::getRackById(int rack_id) {
+    auto result = db.query_params(
+        "SELECT id, zone_id, code, max_weight, max_volume, current_weight, current_volume "
+        "FROM racks WHERE id = $1",
+        rack_id);
+    if (result.empty()) return std::nullopt;
+    return mapRack(result[0]);
 }
 
 int WarehouseRepository::createShelf(int rack_id, const std::string& code, double max_weight,
@@ -118,7 +136,10 @@ void WarehouseRepository::updateShelfStatus(int shelf_id, const std::string& sta
 }
 
 std::optional<Shelf> WarehouseRepository::getShelfById(int shelfId) {
-    auto result = db.query_params("SELECT * FROM shelves WHERE id = $1", shelfId);
+    auto result = db.query_params(
+        "SELECT id, rack_id, code, max_weight, max_volume, "
+        "current_weight, current_volume, status FROM shelves WHERE id = $1",
+        shelfId);
     if (result.empty()) return std::nullopt;
     return mapShelf(result[0]);
 }

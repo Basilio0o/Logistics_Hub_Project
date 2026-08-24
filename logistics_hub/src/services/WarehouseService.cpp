@@ -1,6 +1,7 @@
 #include "services/WarehouseService.h"
 
 #include <algorithm>
+#include <cctype>
 
 PlacementResult WarehouseService::placeProduct(int product_id, int quantity) {
     auto product = productRepo.getProductById(product_id);
@@ -255,6 +256,211 @@ std::vector<ShelfProduct> WarehouseService::getShelfProductsByProductId(int prod
     return productRepo.getShelfProductsByProductId(product_id);
 }
 
+int WarehouseService::createWarehouse(const std::string& name, const std::string& address,
+                                      double square) {
+    isValidName(name);
+    isValidName(address);
+    if (square <= 0) throw std::invalid_argument("Площадь должна быть больше 0)");
+
+    for (const auto& w : warehouseRepo.getAllWarehouses()) {
+        if ((w.getName() == name) || (w.getAddress() == address)) {
+            throw std::runtime_error(
+                "Склад с таким названием уже существует или по этому адресу уже находится склад");
+        }
+    }
+
+    int id = warehouseRepo.createWarehouse(name, address, square);
+
+    audit.log("cell", id, "update", "");
+
+    return id;
+}
+
+void WarehouseService::updateWarehouse(int id, const std::string& name, const std::string& address,
+                                       double square) {
+    if (!warehouseRepo.getWarehouseById(id))
+        throw std::runtime_error("Склад с id " + std::to_string(id) + " не найден");
+
+    isValidName(name);
+    isValidName(address);
+    if (square <= 0) throw std::invalid_argument("Площадь должна быть больше 0)");
+
+    for (const auto& w : warehouseRepo.getAllWarehouses()) {
+        if ((w.getName() == name && w.getId() != id) ||
+            (w.getAddress() == address && w.getId() != id)) {
+            throw std::runtime_error(
+                "Склад с таким названием уже существует или по этому адресу уже находится склад");
+        }
+    }
+
+    warehouseRepo.updateWarehouse(id, name, address, square);
+
+    audit.log("cell", id, "update", "");
+}
+
+std::vector<Warehouse> WarehouseService::getAllWarehouses() {
+    return warehouseRepo.getAllWarehouses();
+}
+
+std::optional<Warehouse> WarehouseService::getWarehouseById(int id) {
+    return warehouseRepo.getWarehouseById(id);
+}
+
+int WarehouseService::createZone(int warehouse_id, const std::string& name, const std::string& code,
+                                 double max_weight, double max_volume) {
+    if (!warehouseRepo.getWarehouseById(warehouse_id))
+        throw std::runtime_error("Склад с id " + std::to_string(warehouse_id) + " не найден");
+
+    isValidName(name);
+    isValidCode(code);
+    if (max_weight <= 0 || max_volume <= 0)
+        throw std::invalid_argument("Численные параметры должны быть больше 0");
+
+    for (const auto& z : warehouseRepo.getAllZones()) {
+        if ((z.getName() == name) || (z.getCode() == code)) {
+            throw std::runtime_error(
+                "Зона с таким названием уже существует или уже используется такой код");
+        }
+    }
+
+    int id = warehouseRepo.createZone(warehouse_id, name, code, max_weight, max_volume);
+
+    audit.log("cell", id, "update", "");
+
+    return id;
+}
+
+void WarehouseService::updateZone(int id, const std::string& name, const std::string& code,
+                                  double max_weight, double max_volume) {
+    if (!warehouseRepo.getZoneById(id))
+        throw std::runtime_error("Зона с id " + std::to_string(id) + " не найден");
+
+    isValidName(name);
+    isValidCode(code);
+    if (max_weight <= 0 || max_volume <= 0)
+        throw std::invalid_argument("Численные параметры должны быть больше 0");
+
+    for (const auto& z : warehouseRepo.getAllZones()) {
+        if (z.getId() != id && ((z.getName() == name) || (z.getCode() == code))) {
+            throw std::runtime_error(
+                "Зона с таким названием уже существует или уже используется такой код");
+        }
+    }
+
+    warehouseRepo.updateZone(id, name, code, max_weight, max_volume);
+
+    audit.log("cell", id, "update", "");
+}
+
+std::vector<Zone> WarehouseService::getAllZones() {
+    return warehouseRepo.getAllZones();
+}
+
+std::optional<Zone> WarehouseService::getZoneByName(const std::string& name) {
+    isValidName(name);
+    return warehouseRepo.getZoneByName(name);
+}
+
+std::optional<Zone> WarehouseService::getZoneById(int zone_id) {
+    return warehouseRepo.getZoneById(zone_id);
+}
+
+int WarehouseService::createRack(int zone_id, const std::string& code, double max_weight,
+                                 double max_volume) {
+    if (!warehouseRepo.getZoneById(zone_id))
+        throw std::runtime_error("Зона с id " + std::to_string(zone_id) + " не найден");
+
+    isValidCode(code);
+    if (max_weight <= 0 || max_volume <= 0)
+        throw std::invalid_argument("Численные параметры должны быть больше 0");
+
+    for (const auto& r : warehouseRepo.getRacksByZoneId(zone_id)) {
+        if (r.getCode() == code) {
+            throw std::runtime_error("Такой код зоны уже используется в этом складе");
+        }
+    }
+
+    int id = warehouseRepo.createRack(zone_id, code, max_weight, max_volume);
+
+    audit.log("cell", id, "update", "");
+
+    return id;
+}
+void WarehouseService::updateRack(int id, const std::string& code, double max_weight,
+                                  double max_volume) {
+    auto currentRack = warehouseRepo.getRackById(id);
+    if (!currentRack) throw std::runtime_error("Стеллаж с id " + std::to_string(id) + " не найден");
+
+    isValidCode(code);
+    if (max_weight <= 0 || max_volume <= 0)
+        throw std::invalid_argument("Численные параметры должны быть больше 0");
+
+    int zone_id = currentRack->getZoneId();
+    for (const auto& r : warehouseRepo.getRacksByZoneId(zone_id)) {
+        if (r.getId() != id && r.getCode() == code) {
+            throw std::runtime_error("Такой код стеллажа уже используется в этой зоне");
+        }
+    }
+
+    warehouseRepo.updateRack(id, code, max_weight, max_volume);
+
+    audit.log("cell", id, "update", "");
+}
+
+std::vector<Rack> WarehouseService::getRacksByZoneId(int zone_id) {
+    return warehouseRepo.getRacksByZoneId(zone_id);
+}
+
+std::optional<Rack> WarehouseService::getRackById(int rack_id) {
+    return warehouseRepo.getRackById(rack_id);
+}
+
+int WarehouseService::createShelf(int rack_id, const std::string& code, double max_weight,
+                                  double max_volume) {
+    if (!warehouseRepo.getRackById(rack_id))
+        throw std::runtime_error("Стеллаж с id " + std::to_string(rack_id) + " не найден");
+
+    isValidCode(code);
+    if (max_weight <= 0 || max_volume <= 0)
+        throw std::invalid_argument("Численные параметры должны быть больше 0");
+
+    for (const auto& r : warehouseRepo.getShelvesByRackId(rack_id)) {
+        if (r.getCode() == code) {
+            throw std::runtime_error("Уже используется такой код");
+        }
+    }
+
+    int id = warehouseRepo.createShelf(rack_id, code, max_weight, max_volume);
+
+    audit.log("cell", id, "update", "");
+
+    return id;
+}
+void WarehouseService::updateShelf(int id, const std::string& code, double max_weight,
+                                   double max_volume) {
+    auto currentShelf = warehouseRepo.getShelfById(id);
+    if (!currentShelf) throw std::runtime_error("Полка с id " + std::to_string(id) + " не найдена");
+
+    isValidCode(code);
+    if (max_weight <= 0 || max_volume <= 0)
+        throw std::invalid_argument("Численные параметры должны быть больше 0");
+
+    int rack_id = currentShelf->getRackId();
+    for (const auto& s : warehouseRepo.getShelvesByRackId(rack_id)) {
+        if (s.getId() != id && s.getCode() == code) {
+            throw std::runtime_error("Такой код полки уже используется на этом стеллаже");
+        }
+    }
+
+    warehouseRepo.updateShelf(id, code, max_weight, max_volume);
+
+    audit.log("cell", id, "update", "");
+}
+
+std::vector<Shelf> WarehouseService::getShelvesByRackId(int rack_id) {
+    return warehouseRepo.getShelvesByRackId(rack_id);
+}
+
 std::optional<Shelf> WarehouseService::getShelfById(int shelf_id) {
     auto shelf = warehouseRepo.getShelfById(shelf_id);
     if (!shelf)
@@ -262,15 +468,28 @@ std::optional<Shelf> WarehouseService::getShelfById(int shelf_id) {
     return shelf;
 }
 
-std::vector<Zone> WarehouseService::getAllZones() {
-    return warehouseRepo.getAllZones();
-}
-
 std::string WarehouseService::zoneNameForType(const std::string& product_type) {
     if (product_type == "regular") return "regular";
     if (product_type == "perishable") return "cold";
     if (product_type == "oversized") return "oversized";
     throw std::invalid_argument("Неизвестный тип товара: " + product_type);
+}
+
+void WarehouseService::isValidName(const std::string& name) {
+    if (name.empty()) {
+        throw std::invalid_argument("Название не может быть пустым");
+    }
+    if (std::all_of(name.begin(), name.end(), [](unsigned char c) { return std::isspace(c); })) {
+        throw std::invalid_argument("Название не может состоять только из пробелов");
+    }
+}
+
+void WarehouseService::isValidCode(const std::string& code) {
+    if (code.empty()) throw std::invalid_argument("Код не может быть пустым");
+    if (!std::all_of(code.begin(), code.end(),
+                     [](unsigned char c) { return std::isalnum(c) || c == '-'; })) {
+        throw std::invalid_argument("Код должен содержать только буквы, цифры и дефис");
+    }
 }
 
 std::string WarehouseService::escapeJson(const std::string& s) {
