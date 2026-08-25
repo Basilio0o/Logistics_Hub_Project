@@ -103,24 +103,30 @@ void ManagerMenu::showDashboard() {
     std::cout << "Посылки: new=" << newParcels.size() << ", assembled=" << assembledParcels.size()
               << "\n";
 
-    std::cout << "\n[Складские зоны]\n";
-    std::cout << "ID | Название  | Код | Текущий вес / Максимальный вес | Текущий объём / "
-                 "Максимальный объём\n";
-    std::cout << "---|-----------|-----|--------------------------------|-----------"
-                 "----------------------- \n";
-
     auto warehouses = warehouseService.getAllWarehouses();
-    auto zones = warehouseService.getZonesByWarehouseId(warehouses[0].getId());
 
-    for (const auto& zone : zones) {
-        std::ostringstream weightStream, volumeStream;
-        weightStream << zone.getCurrentWeight() << " / " << zone.getMaxWeight();
-        volumeStream << zone.getCurrentVolume() << " / " << zone.getMaxVolume();
+    if (warehouses.empty()) {
+        std::cout << "Склады не найдены.\n";
+    } else {
+        for (const auto& wh : warehouses) {
+            std::cout << "\n[Склад: " << wh.getName() << " (ID: " << wh.getId() << ")]\n";
+            std::cout
+                << "ID | Название  | Код | Текущий вес / Макс. вес | Текущий объём / Макс. объём\n";
+            std::cout
+                << "---|-----------|-----|-------------------------|----------------------------\n";
 
-        std::cout << std::left << std::setw(3) << zone.getId() << "| " << std::setw(10)
-                  << zone.getName() << "| " << std::setw(4) << zone.getCode() << "| "
-                  << std::setw(31) << weightStream.str() << "| " << std::setw(34)
-                  << volumeStream.str() << "\n";
+            auto zones = warehouseService.getZonesByWarehouseId(wh.getId());
+            for (const auto& zone : zones) {
+                std::ostringstream weightStream, volumeStream;
+                weightStream << zone.getCurrentWeight() << " / " << zone.getMaxWeight();
+                volumeStream << zone.getCurrentVolume() << " / " << zone.getMaxVolume();
+
+                std::cout << std::left << std::setw(3) << zone.getId() << "| " << std::setw(10)
+                          << zone.getName() << "| " << std::setw(4) << zone.getCode() << "| "
+                          << std::setw(31) << weightStream.str() << "| " << std::setw(34)
+                          << volumeStream.str() << "\n";
+            }
+        }
     }
 }
 

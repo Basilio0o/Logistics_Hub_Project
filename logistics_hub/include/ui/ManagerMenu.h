@@ -20,6 +20,7 @@ class ManagerMenu {
           districtService(db),
           audit(db),
           user_id(user_id) {}
+
     int run();
 
    private:
