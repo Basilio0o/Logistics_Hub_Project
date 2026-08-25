@@ -316,7 +316,7 @@ int WarehouseService::createZone(int warehouse_id, const std::string& name, cons
     if (max_weight <= 0 || max_volume <= 0)
         throw std::invalid_argument("Численные параметры должны быть больше 0");
 
-    for (const auto& z : warehouseRepo.getAllZones()) {
+    for (const auto& z : warehouseRepo.getZonesByWarehouseId(warehouse_id)) {
         if ((z.getName() == name) || (z.getCode() == code)) {
             throw std::runtime_error(
                 "Зона с таким названием уже существует или уже используется такой код");
@@ -332,15 +332,15 @@ int WarehouseService::createZone(int warehouse_id, const std::string& name, cons
 
 void WarehouseService::updateZone(int id, const std::string& name, const std::string& code,
                                   double max_weight, double max_volume) {
-    if (!warehouseRepo.getZoneById(id))
-        throw std::runtime_error("Зона с id " + std::to_string(id) + " не найден");
+    auto zone = warehouseRepo.getZoneById(id);
+    if (!zone) throw std::runtime_error("Зона с id " + std::to_string(id) + " не найден");
 
     isValidName(name);
     isValidCode(code);
     if (max_weight <= 0 || max_volume <= 0)
         throw std::invalid_argument("Численные параметры должны быть больше 0");
 
-    for (const auto& z : warehouseRepo.getAllZones()) {
+    for (const auto& z : warehouseRepo.getZonesByWarehouseId(zone->getWarehouseId())) {
         if (z.getId() != id && ((z.getName() == name) || (z.getCode() == code))) {
             throw std::runtime_error(
                 "Зона с таким названием уже существует или уже используется такой код");
@@ -352,8 +352,8 @@ void WarehouseService::updateZone(int id, const std::string& name, const std::st
     audit.log("cell", id, "update", "");
 }
 
-std::vector<Zone> WarehouseService::getAllZones() {
-    return warehouseRepo.getAllZones();
+std::vector<Zone> WarehouseService::getZonesByWarehouseId(int warehouse_id) {
+    return warehouseRepo.getZonesByWarehouseId(warehouse_id);
 }
 
 std::optional<Zone> WarehouseService::getZoneByName(const std::string& name) {

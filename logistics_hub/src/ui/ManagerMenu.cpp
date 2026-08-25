@@ -109,7 +109,8 @@ void ManagerMenu::showDashboard() {
     std::cout << "---|-----------|-----|--------------------------------|-----------"
                  "----------------------- \n";
 
-    auto zones = warehouseService.getAllZones();
+    auto warehouses = warehouseService.getAllWarehouses();
+    auto zones = warehouseService.getZonesByWarehouseId(warehouses[0].getId());
 
     for (const auto& zone : zones) {
         std::ostringstream weightStream, volumeStream;

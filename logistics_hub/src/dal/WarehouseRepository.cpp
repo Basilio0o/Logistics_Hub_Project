@@ -47,11 +47,13 @@ void WarehouseRepository::updateZone(int id, const std::string& name, const std:
         name, code, max_weight, max_volume);
 }
 
-std::vector<Zone> WarehouseRepository::getAllZones() {
-    auto result = db.query(
+std::vector<Zone> WarehouseRepository::getZonesByWarehouseId(int warehouse_id) {
+    auto result = db.query_params(
         "SELECT id, warehouse_id, name, code, max_weight, max_volume, current_weight, "
         "current_volume FROM zones "
-        "ORDER BY id");
+        "WHERE id = $1 "
+        "ORDER BY id",
+        warehouse_id);
     std::vector<Zone> zones;
     zones.reserve(result.size());
     for (const auto& row : result) {

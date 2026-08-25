@@ -72,7 +72,7 @@ class WarehouseService {
                    double max_weight, double max_volume);
     void updateZone(int id, const std::string& name, const std::string& code, double max_weight,
                     double max_volume);
-    std::vector<Zone> getAllZones();
+    std::vector<Zone> getZonesByWarehouseId(int warehouse_id);
     std::optional<Zone> getZoneByName(const std::string& name);
     std::optional<Zone> getZoneById(int zone_id);
 
